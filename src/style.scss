@@ -1,0 +1,375 @@
+@import "../../../../.cache/wal/colors-ags.scss";
+
+* {
+    all: unset;
+    font-family: Papernotes, Symbols Nerd Font;
+    font-size: 27px;
+    color: $foreground;
+}
+
+// #region element styling
+button {
+    padding: 5px 10px;
+    border-radius: 10px;
+
+    &:hover {
+        background-color: rgba($foreground, 0.1);
+
+        & .critical,
+        & .accent {
+            color: $background;
+        }
+    }
+
+    &.widget:hover {
+        background-color: $color1;
+    }
+
+    &:active {
+        background-color: $color9;
+    }
+}
+
+levelbar trough {
+    background-color: $background;
+    border-radius: 100px;
+
+    .filled {
+        background-color: $color1;
+        border-radius: 100px;
+    }
+}
+
+calendar {
+    color: $foreground;
+
+    // &.widget>* {
+    //     padding: 7px;
+    //     margin: 0px;
+    // }
+    &:selected {
+        background-color: $color1;
+        border-radius: 10px;
+    }
+
+    &:indeterminate {
+        color: rgba($foreground, 0.1);
+    }
+
+    &.highlight {
+        color: $color1;
+    }
+}
+
+tooltip {
+    border-radius: 7px;
+    background-color: $background;
+
+    label {
+        color: $foreground;
+        margin: 3px;
+    }
+}
+
+entry {
+    padding: 0.3em;
+    border-radius: 10px;
+
+    & selection {
+        background-color: $color1;
+    }
+}
+
+// #endregion
+// #region general/global class styling
+.panel {
+    background-color: $background;
+    border-radius: 20px;
+    padding: 0.3em;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.4);
+}
+
+.widget {
+    background-color: $color0;
+    padding: 0.3em;
+    border-radius: 14px;
+}
+
+.widget-label {
+    font-size: 0.7em;
+}
+
+.bigtext {
+    font-size: 100px;
+    font-weight: bold;
+}
+
+.title {
+    font-size: 40px;
+}
+
+.subtitle {
+    font-size: 25px;
+    color: $color8;
+}
+
+.open {
+    background-color: $color1;
+
+    .accent,
+    .critical {
+        color: $background;
+    }
+}
+
+.accent {
+    color: $color1;
+}
+
+.alert {
+    color: $color3;
+
+    &.open {
+        color: $background;
+    }
+}
+
+.critical {
+    color: $color1;
+
+    &.open {
+        color: $background;
+    }
+}
+
+.good {
+    color: $color2;
+
+    &.open {
+        color: $background;
+    }
+}
+
+.thin-separator-horiz {
+    border-radius: 20px;
+    border: 1.5px solid rgba($foreground, 0.1);
+    margin: 0px 20px;
+}
+
+.thin-separator-vert {
+    border-radius: 20px;
+    border: 1.5px solid rgba($foreground, 0.1);
+    margin: 20px 0px;
+}
+
+.accent-border {
+    border: 3px solid $color1;
+}
+
+// #endregion
+// #region bar styling
+.workspace {
+    padding: 0.3em;
+
+    * {
+        font-size: 0.55em;
+    }
+
+    &.focused * {
+        color: $color1;
+    }
+}
+
+.bar-status-icon {
+    font-size: 0.8em;
+}
+
+.bat-charging {
+    color: $color3;
+}
+
+// systray popups
+.popup {
+    background-color: $background;
+    border-radius: 10px;
+
+    // all elements within the popup menu:
+    //   (i cant find exactly what this selects but
+    //   it looks right and works right so ill take it)
+    &>*>* {
+        padding: 5px 10px;
+
+        &:hover {
+            background-color: $color1;
+        }
+    }
+
+    separator {
+        background-color: rgba($foreground, 0.1);
+        padding: 1px 0px;
+        margin: 0.2em 0.5em;
+        border-radius: 100px;
+    }
+}
+
+.tray-icon {
+    background-color: transparent;
+    padding: 0px;
+}
+
+.distro-logo {
+   padding: 5px 10px; 
+}
+
+// #endregion
+// #region notifications
+.notification {
+    background-color: $background;
+    padding: 0.4em;
+    border-radius: 13px;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4);
+}
+
+.notif-title {
+    color: $foreground;
+    font-size: 0.8em;
+}
+
+.notif-body {
+    color: rgba($foreground, 0.6);
+    font-size: 0.7em;
+}
+
+.notif-close-button * {
+    font-size: 0.5em;
+    color: rgba($foreground, 0.3);
+}
+
+.notif-action-button * {
+    font-size: 0.7em;
+}
+
+// #endregion
+// #region app launcher
+.search-bar {
+    padding: 5px;
+
+    & .thin-separator-horiz {
+        padding: 5px;
+    }
+}
+
+// #endregion
+// #region quick menu
+.big-button {
+    background-color: rgba($foreground, 0.04);
+    border-radius: 10px;
+
+    & * {
+        background-color: unset;
+    }
+
+    // make all sub-widgets apply padding (eventboxes cant do padding?)
+    &>* {
+        padding: 0.1em;
+    }
+
+    *.thin-separator-vert,
+    *.thin-separator-horiz {
+        border: 1.5px solid rgba($background, 0.1);
+        margin: 6px 0px;
+    }
+
+    & .main-button:hover {
+        background-color: unset;
+    }
+
+    &:hover {
+        background-color: $color1;
+    }
+}
+
+.big-button-icon,
+.big-button-icon * {
+    color: $foreground;
+    font-size: 1.3rem;
+}
+
+.big-button-desc {
+    font-size: 0.8em;
+    color: rgba($foreground, 0.3);
+}
+
+.enabled {
+    background-color: $foreground;
+
+    &,
+    & * {
+        color: $background;
+    }
+
+    &:hover {
+        background-color: $color1;
+
+        &,
+        & * {
+            color: $foreground;
+        }
+    }
+}
+
+.bat-time {
+    font-size: 0.7em;
+    color: rgba($foreground, 0.3);
+}
+
+.page-nav-text {
+    font-size: 0.8em;
+}
+
+.wifi-passwd-entry {
+    background-color: $color1;
+}
+
+.now-playing-title {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.now-playing-artist {
+    font-size: 0.7em;
+    color: rgba($foreground, 0.5);
+}
+
+.now-playing-art {
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 6px;
+    background-position: center;
+}
+
+.now-playing-player-icon {
+    font-size: 0.8em;
+    padding: 4px;
+    color: rgba($foreground, 0.2);
+}
+
+.now-playing-time {
+    font-size: 0.5em;
+    color: rgba($foreground, 0.3);
+}
+
+// #endregion
+// #region progress popup
+.volume-popup {
+    background-color: $background;
+    padding: 0.4em 0.8em;
+    border-radius: 50px;
+    box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4);
+
+    & levelbar trough {
+        background-color: $color0;
+    }
+}
+
+// #endregion
