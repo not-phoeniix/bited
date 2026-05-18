@@ -7,7 +7,6 @@ import Launcher from "./widgets/launcher";
 import QuickMenu from "./widgets/quick_menu";
 import VolumePopup from "./widgets/volume_popup";
 import Dock from "./widgets/dock";
-import Wallpapers from "./widgets/wallpapers";
 
 App.start({
     css: Paths.cssCachePath,
@@ -35,6 +34,5 @@ App.start({
         VolumePopup(mainMonitor);
         Dock(mainMonitor);
         Bar(mainMonitor, `bar_0`);
-        Wallpapers(mainMonitor);
     }
 });
