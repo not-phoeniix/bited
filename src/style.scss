@@ -1,7 +1,8 @@
 @import "../../../../.cache/wal/colors-ags.scss";
 
 * {
-    all: unset;
+    // apparently this is bad to do lol
+    // all: unset;
     font-family: Papernotes, Symbols Nerd Font;
     font-size: 27px;
     color: $foreground;
@@ -11,6 +12,9 @@
 button {
     padding: 5px 10px;
     border-radius: 10px;
+    background-color: unset;
+    min-height: unset;
+    min-width: unset;
 
     &:hover {
         background-color: rgba($foreground, 0.1);
@@ -95,10 +99,6 @@ entry {
     border-radius: 14px;
 }
 
-.widget-label {
-    font-size: 0.7em;
-}
-
 .bigtext {
     font-size: 100px;
     font-weight: bold;
@@ -142,6 +142,10 @@ entry {
     }
 }
 
+.alert {
+    color: $color3;
+}
+
 .good {
     color: $color2;
 
@@ -180,12 +184,10 @@ entry {
     }
 }
 
-.bar-status-icon {
+.bar-icon {
     font-size: 0.8em;
-}
-
-.bat-charging {
-    color: $color3;
+    background-color: transparent;
+    padding: 0 5px;
 }
 
 // systray popups
@@ -210,15 +212,6 @@ entry {
         margin: 0.2em 0.5em;
         border-radius: 100px;
     }
-}
-
-.tray-icon {
-    background-color: transparent;
-    padding: 0px;
-}
-
-.distro-logo {
-   padding: 5px 10px; 
 }
 
 // #endregion

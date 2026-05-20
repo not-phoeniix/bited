@@ -3,7 +3,7 @@ import { AppConfig } from "./types";
 import { StateObject } from "./types";
 import { stateObjectMap } from "./utils";
 
-const DEFAULT_CONFIG: AppConfig = Object.seal({
+const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
     barSize: 20,
     barLocation: "TOP",
     workspaces: [
@@ -26,6 +26,19 @@ const spacing = Object.seal({
     widgetSpacing: 10,
 });
 
+const batteryIcons = Object.seal({
+    charging: "󰂄",
+    full: "󱈑",
+    discharging: ["󱃍", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "�", "�󰂁", "󰂂", "󰁹"],
+    unknown: "󰂑",
+});
+
+const bluetoothIcons = Object.seal({
+    connected: "󰂱",
+    enabled: "󰂯",
+    disabled: "󰂲",
+});
+
 export default {
     ...config,
     barIsVertical: () => createComputed(() => {
@@ -33,4 +46,6 @@ export default {
         return loc === "LEFT" || loc === "RIGHT";
     }),
     spacing,
+    batteryIcons,
+    bluetoothIcons,
 };
