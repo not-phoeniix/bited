@@ -1,10 +1,11 @@
 import app from "ags/gtk4/app";
 import { Argument, ArgumentFunc } from "./types";
 
-type ArgumentSignature = { func: ArgumentFunc, hasValue: boolean };
-const ARGS: Record<string, ArgumentSignature> = Object.seal({
-    "--help": { func: printHelp, hasValue: false },
-    "-h": { func: printHelp, hasValue: false },
+const ARGS: Record<string, ArgumentFunc> = Object.seal({
+    "--help": printHelp,
+    "-h": printHelp,
+    "--message": printMessage,
+    "-m": printMessage,
 });
 
 const HELP_MESSAGE = `
@@ -13,9 +14,17 @@ const HELP_MESSAGE = `
 Usage: bitshell [options]
 
 Options: 
-    --help
-        prints this message
+  -h, --help
+    prints this message and exits
+
+  -m, --message MESSAGE
+    prints a specified message and exits
 `;
+
+function printMessage(value?: string) {
+    print(value);
+    app.quit();
+}
 
 function printHelp() {
     print(HELP_MESSAGE);
@@ -29,17 +38,17 @@ function parseArgs(argv: string[]): Argument[] {
         const name = argv[i];
         let value: string | undefined;
 
-        let arg = ARGS[name];
-        if (!arg) {
-            print(`argument "${name}" not recognized!`);
-            arg = ARGS["--help"];
+        let func = ARGS[name];
+        if (!func) {
+            print(`option "${name}" not recognized!`);
+            func = ARGS["--help"];
         }
 
-        if (arg.hasValue) {
+        if (func.length > 0) {
             value = argv[++i];
         }
 
-        parsedArgs.push({ name, value, func: arg.func });
+        parsedArgs.push({ name, value, func });
     }
 
     // only print help once if it shows at all
