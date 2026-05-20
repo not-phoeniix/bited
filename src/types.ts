@@ -30,3 +30,11 @@ export interface AppConfig {
     barLocation: "LEFT" | "RIGHT" | "TOP" | "BOTTOM";
     workspaces: WorkspaceDesc[];
 };
+
+export type ArgumentFunc = (value?: string) => void;
+
+export interface Argument {
+    name: string;
+    value?: string;
+    func: ArgumentFunc;
+};
