@@ -1,14 +1,13 @@
 import app from "ags/gtk4/app";
 import style from "./style.scss";
-import bar from "./bar";
-import { createBinding, createEffect } from "gnim";
 import { parseArgs } from "./arguments";
+import bar from "./bar";
+import launcher from "./launcher";
 
 function run() {
-    const monitors = createBinding(app, "monitors");
-
-    createEffect(() => {
-        monitors().map(bar);
+    app.monitors.map(monitor => {
+        bar(monitor);
+        launcher(monitor);
     });
 }
 
