@@ -11,6 +11,33 @@
 // #region element styling
 button {
     padding: 5px 10px;
+}
+
+menubutton {
+    padding: 0;
+
+    &>button.toggle {
+        padding: 0;
+
+        &:hover {
+            background-color: unset;
+        }
+    }
+
+    // make it so outer box doesn't have weird padding, 
+    //   rather the toggle button has full space
+    &.widget {
+        padding: 0;
+
+        &>button.toggle {
+            padding: 0.3em;
+            border-radius: 14px;
+        }
+    }
+}
+
+button,
+menubutton {
     border-radius: 10px;
     background-color: unset;
     min-height: unset;
@@ -44,23 +71,27 @@ levelbar trough {
     }
 }
 
-calendar {
-    color: $foreground;
+popover>* {
+    background-color: $background;
+}
 
-    // &.widget>* {
-    //     padding: 7px;
-    //     margin: 0px;
-    // }
-    &:selected {
-        background-color: $color1;
-        border-radius: 10px;
+calendar {
+    border: none;
+    color: $foreground;
+    
+    & .today {
+        border: 2px inset $color1;
     }
 
-    &:indeterminate {
+    & *:selected {
+        background-color: $color1;
+    }
+
+    & *:indeterminate {
         color: rgba($foreground, 0.1);
     }
 
-    &.highlight {
+    & *.highlight {
         color: $color1;
     }
 }

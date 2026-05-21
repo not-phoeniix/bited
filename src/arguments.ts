@@ -1,12 +1,19 @@
-import app from "ags/gtk4/app";
 import { Argument, ArgumentFunc } from "./types";
+import { Gtk } from "ags/gtk4";
 
-const ARGS: Record<string, ArgumentFunc> = Object.seal({
+export const ARGS: Record<string, ArgumentFunc> = Object.seal({
+    "help": printHelp,
     "--help": printHelp,
     "-h": printHelp,
+    "message": printMessage,
     "--message": printMessage,
     "-m": printMessage,
+    "toggle": togglePanel,
+    "--toggle-panel": togglePanel,
+    "-t": togglePanel,
 });
+
+const panels: Record<string, Gtk.Popover[]> = {};
 
 const HELP_MESSAGE = `
 [bitshell] - A minimal GTK shell
@@ -14,24 +21,45 @@ const HELP_MESSAGE = `
 Usage: bitshell [options]
 
 Options: 
-  -h, --help
+  help, -h, --help
     prints this message and exits
 
-  -m, --message MESSAGE
+  message, -m, --message [MESSAGE]
     prints a specified message and exits
-`;
+
+  toggle, -t, --toggle-panel [PANEL]
+    toggles the visibility a panel
+    possible panels include:
+      - "calendar"
+      - "quick_menu"
+`.trim();
 
 function printMessage(value?: string) {
-    print(value);
-    app.quit();
+    return value ?? "missing value!";
 }
 
 function printHelp() {
-    print(HELP_MESSAGE);
-    app.quit();
+    return HELP_MESSAGE;
 }
 
-function parseArgs(argv: string[]): Argument[] {
+function togglePanel(panel?: string) {
+    if (!panel || !panels[panel]) {
+        return `panel "${panel}" not recognized!`;
+    }
+
+    const firstVisible = panels[panel][0]?.is_visible() ?? false;
+    for (let popover of panels[panel]) {
+        if (firstVisible) {
+            popover.popdown();
+        } else {
+            popover.popup();
+        }
+    }
+
+    return `panel "${panel}" toggled!`;
+}
+
+export function parseArgs(argv: string[]): Argument[] {
     let parsedArgs: Argument[] = [];
 
     for (let i = 0; i < argv.length; i++) {
@@ -60,7 +88,6 @@ function parseArgs(argv: string[]): Argument[] {
     return parsedArgs;
 }
 
-export {
-    ARGS,
-    parseArgs,
+export function registerPanel(name: string, popover: Gtk.Popover) {
+    panels[name] = [...(panels[name] ?? []), popover];
 }

@@ -31,7 +31,7 @@ export interface AppConfig {
     workspaces: WorkspaceDesc[];
 };
 
-export type ArgumentFunc = (value?: string) => void;
+export type ArgumentFunc = (value?: string) => string;
 
 export interface Argument {
     name: string;
