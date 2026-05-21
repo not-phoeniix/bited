@@ -39,6 +39,12 @@ const bluetoothIcons = Object.seal({
     disabled: "󰂲",
 });
 
+const launcher = Object.seal({
+    iconSize: 32,
+    maxResults: 6,
+    widthPx: 600,
+});
+
 export default {
     ...config,
     barIsVertical: () => createComputed(() => {
@@ -48,4 +54,5 @@ export default {
     spacing,
     batteryIcons,
     bluetoothIcons,
+    launcher,
 };

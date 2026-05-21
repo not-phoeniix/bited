@@ -13,7 +13,8 @@ export const ARGS: Record<string, ArgumentFunc> = Object.seal({
     "-t": togglePanel,
 });
 
-const panels: Record<string, Gtk.Popover[]> = {};
+const popovers: Record<string, Gtk.Popover[]> = {};
+const windows: Record<string, Gtk.Window[]> = {};
 
 const HELP_MESSAGE = `
 [bitshell] - A minimal GTK shell
@@ -42,21 +43,41 @@ function printHelp() {
     return HELP_MESSAGE;
 }
 
-function togglePanel(panel?: string) {
-    if (!panel || !panels[panel]) {
-        return `panel "${panel}" not recognized!`;
+function togglePanel(panelName?: string) {
+    if (!panelName) {
+        return `invalid panel name \"${panelName}\"!`;
     }
 
-    const firstVisible = panels[panel][0]?.is_visible() ?? false;
-    for (let popover of panels[panel]) {
-        if (firstVisible) {
-            popover.popdown();
-        } else {
-            popover.popup();
+    const popoverList = popovers[panelName];
+    const windowList = windows[panelName];
+
+    if (!popoverList && !windowList) {
+        return `panel name ${panelName} not recognized!`;
+    }
+
+    if (popoverList) {
+        const firstVisible = popoverList[0]?.is_visible() ?? false;
+        for (let popover of popoverList) {
+            if (firstVisible) {
+                popover.popdown();
+            } else {
+                popover.popup();
+            }
         }
     }
 
-    return `panel "${panel}" toggled!`;
+    if (windowList) {
+        const firstVisible = windowList[0]?.is_visible() ?? false;
+        for (let window of windowList) {
+            if (firstVisible) {
+                window.hide();
+            } else {
+                window.show();
+            }
+        }
+    }
+
+    return `panel "${panelName}" toggled!`;
 }
 
 export function parseArgs(argv: string[]): Argument[] {
@@ -88,6 +109,10 @@ export function parseArgs(argv: string[]): Argument[] {
     return parsedArgs;
 }
 
-export function registerPanel(name: string, popover: Gtk.Popover) {
-    panels[name] = [...(panels[name] ?? []), popover];
+export function registerPanel(name: string, panel: Gtk.Popover | Gtk.Window) {
+    if (panel instanceof Gtk.Popover) {
+        popovers[name] = [...(popovers[name] ?? []), panel];
+    } else {
+        windows[name] = [...(windows[name] ?? []), panel];
+    }
 }
