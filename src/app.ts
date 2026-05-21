@@ -15,12 +15,27 @@ function run() {
 app.start({
     instanceName: "bitshell",
     css: style,
+    requestHandler(argv: string[], res) {
+        let retStr = "";
+
+        for (let arg of parseArgs(argv)) {
+            retStr += arg.func(arg.value);
+        }
+
+        res(retStr);
+    },
     main(...argv: string[]) {
         const parsedArgs = parseArgs(argv);
         if (parsedArgs.length > 0) {
+            let printStr = "";
+
             for (let arg of parsedArgs) {
-                arg.func(arg.value);
+                printStr += arg.func(arg.value);
             }
+
+            print(printStr);
+
+            app.quit();
         } else {
             run();
         }

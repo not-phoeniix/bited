@@ -3,10 +3,12 @@ import { Astal, Gdk, Gtk } from "ags/gtk4"
 import { Accessor, createBinding, createComputed, createState, For } from "gnim";
 import AstalTray from "gi://AstalTray";
 import AstalHyprland from "gi://AstalHyprland";
+import GLib from "gi://GLib";
 import { createTimePoll, padNumberStr } from "./utils";
 import { WorkspaceDesc } from "./types";
 import config from "./config";
 import { batteryIcon, bluetoothIcon, networkIcon } from "./icons";
+import { registerPanel } from "./arguments";
 
 function leftWidgets() {
     // hyprland state
@@ -79,6 +81,7 @@ function rightWidgets() {
 
     const trayItems = createBinding(tray, "items");
     const time = createTimePoll();
+    const [calendarDate, setCalendarDate] = createState(GLib.DateTime.new_now_local());
 
     return (
         <box $type="end" spacing={config.spacing.widgetSpacing}>
@@ -94,19 +97,37 @@ function rightWidgets() {
             </box>
 
             {/* status icons */}
-            <button class="widget" onClicked={() => print("open quick menu...")}>
+            <menubutton class="widget">
                 <box spacing={config.spacing.widgetSpacing}>
                     {networkIcon("bar-icon")}
                     {bluetoothIcon("bar-icon")}
                     {batteryIcon("bar-icon")}
                 </box>
-            </button>
+
+                <popover $={(self) => registerPanel("quick_menu", self)}>
+                    <box orientation={Gtk.Orientation.VERTICAL}>
+                        <label label="neat" />
+                        <box>
+                            <label label="haha waow" />
+                            <label label="cool" />
+                        </box>
+                    </box>
+                </popover>
+            </menubutton>
 
             {/* time */}
-            <box class="widget" spacing={config.spacing.labelSpacing}>
-                <label label={time.as(t => padNumberStr(t.hour))} />
-                <label label={time.as(t => padNumberStr(t.minute))} class="accent" />
-            </box>
+            <menubutton class="widget">
+                <box spacing={config.spacing.labelSpacing}>
+                    <label label={time.as(t => padNumberStr(t.hour))} />
+                    <label label={time.as(t => padNumberStr(t.minute))} class="accent" />
+                </box>
+                <popover
+                    onShow={() => setCalendarDate(GLib.DateTime.new_now_local())}
+                    $={(self) => registerPanel("calendar", self)}
+                >
+                    <Gtk.Calendar class="widget" date={calendarDate} />
+                </popover>
+            </menubutton>
         </box>
     );
 }
