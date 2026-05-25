@@ -9,6 +9,7 @@ import { WorkspaceDesc } from "./types";
 import config from "./config";
 import { batteryIcon, bluetoothIcon, networkIcon } from "./icons";
 import { registerPanel } from "./arguments";
+import quickMenu from "./quick_menu";
 
 function leftWidgets() {
     // hyprland state
@@ -105,13 +106,7 @@ function rightWidgets() {
                 </box>
 
                 <popover $={(self) => registerPanel("quick_menu", self)}>
-                    <box orientation={Gtk.Orientation.VERTICAL}>
-                        <label label="neat" />
-                        <box>
-                            <label label="haha waow" />
-                            <label label="cool" />
-                        </box>
-                    </box>
+                    {quickMenu()}
                 </popover>
             </menubutton>
 
