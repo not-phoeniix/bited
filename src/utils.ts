@@ -2,6 +2,7 @@ import { execAsync } from "ags/process";
 import { createPoll } from "ags/time";
 import { StateObject, Time } from "./types";
 import { createState } from "gnim";
+import { Astal } from "ags/gtk4";
 
 const DEFAULT_TIME: Time = Object.seal({
     hour: 0,
@@ -48,4 +49,10 @@ export function padNumberStr(num: number | string, minDigits: number = 2): strin
     let str = `${num}`;
     const missingDigits = Math.max(minDigits - str.length, 0);
     return ("0".repeat(missingDigits)) + str;
+}
+
+export function isVertical(anchor: number) {
+    const { TOP, LEFT, RIGHT, BOTTOM } = Astal.WindowAnchor;
+    return anchor === (TOP | LEFT | BOTTOM)
+        || anchor === (TOP | RIGHT | BOTTOM);
 }

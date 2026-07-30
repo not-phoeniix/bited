@@ -25,9 +25,19 @@ export interface WorkspaceDesc {
     separated?: boolean
 };
 
+export interface BarDesc {
+    size: number;
+    location: "LEFT" | "RIGHT" | "TOP" | "BOTTOM";
+    monitorIdx: number;
+    widgets: {
+        start?: string[];
+        center?: string[];
+        end?: string[];
+    };
+};
+
 export interface AppConfig {
-    barSize: number;
-    barLocation: "LEFT" | "RIGHT" | "TOP" | "BOTTOM";
+    bars: BarDesc[];
     workspaces: WorkspaceDesc[];
 };
 

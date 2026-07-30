@@ -1,135 +1,38 @@
 import app from "ags/gtk4/app";
 import { Astal, Gdk, Gtk } from "ags/gtk4"
-import { Accessor, createBinding, createComputed, createState, For } from "gnim";
-import AstalTray from "gi://AstalTray";
-import AstalHyprland from "gi://AstalHyprland";
-import GLib from "gi://GLib";
-import { createTimePoll, padNumberStr } from "./utils";
-import { WorkspaceDesc } from "./types";
 import config from "./config";
-import { batteryIcon, bluetoothIcon, networkIcon } from "./icons";
-import { registerPanel } from "./arguments";
-import quickMenu from "./quick_menu";
+import { getWidgetByName } from "./bar_widgets";
+import { BarDesc } from "./types";
+import { isVertical } from "./utils";
 
-function leftWidgets() {
-    // hyprland state
-    const hyprland = AstalHyprland.get_default();
-    const focusedId = createBinding(hyprland, "focusedWorkspace").as((ws) => ws.id);
-    const workspaces = createBinding(hyprland, "workspaces");
-
-    // can map from a workspace desc to a button widget
-    function workspaceIcon(ws: WorkspaceDesc) {
-        const focused = createComputed(() => focusedId() === ws.id || !!ws.special);
-        const exists = createComputed(() => !!workspaces().find(({ id }) => id === ws.id));
-
-        return (
-            <button
-                label={exists.as(e => ws.icon ?? (e ? "" : ""))}
-                class={focused.as(f => `workspace ${f ? "focused" : ""}`)}
-                visible={exists.as(e => e || !ws.separated)}
-                onClicked={() => ws.id < 0
-                    ? hyprland.dispatch("togglespecialworkspace", "")
-                    : hyprland.dispatch("workspace", `${ws.id}`)
-                }
-            />
-        );
+function locToAnchor(loc: "LEFT" | "RIGHT" | "TOP" | "BOTTOM") {
+    const { TOP, LEFT, RIGHT, BOTTOM } = Astal.WindowAnchor;
+    switch (loc) {
+        case "LEFT": return TOP | LEFT | BOTTOM;
+        case "RIGHT": return TOP | RIGHT | BOTTOM;
+        case "TOP": return LEFT | TOP | RIGHT;
+        case "BOTTOM": return LEFT | BOTTOM | RIGHT;
     }
-
-    // separate defined workspaces in config into "grouped" and 
-    //   "separated" lists, and render in separate boxes later
-    const grouped = createComputed(() => config.workspaces.value().filter(ws => !ws.separated));
-    const separated = createComputed(() => config.workspaces.value().filter(ws => ws.separated));
-
-    return (
-        <box $type="start" spacing={config.spacing.widgetSpacing}>
-            <box class="widget">
-                <For each={grouped}>
-                    {workspaceIcon}
-                </For>
-            </box>
-            <box>
-                <For each={separated}>
-                    {workspaceIcon}
-                </For>
-            </box>
-        </box>
-    );
 }
 
-// example on how the hell to do this found at:
-//   https://github.com/Aylur/ags/blob/main/examples/gtk4/simple-bar/Bar.tsx
-function trayIcon(item: AstalTray.TrayItem) {
-    return (
-        <menubutton
-            tooltipMarkup={item.tooltipMarkup}
-            class="bar-icon"
-            menuModel={item.menuModel}
-            visible={!!item.id /* empty IDs won't show */}
-            $={(self) => {
-                self.insert_action_group("dbusmenu", item.actionGroup);
-                item.connect("notify::action-group", () => {
-                    self.insert_action_group("dbusmenu", item.actionGroup);
-                });
-            }}
-        >
-            <image pixelSize={20} gicon={createBinding(item, "gicon")} />
-        </menubutton>
-    );
-}
+export default function bar(barConfig: BarDesc, monitor: Gdk.Monitor) {
+    const { size, location, widgets } = barConfig;
 
-function rightWidgets() {
-    const tray = AstalTray.get_default();
+    const anchor = locToAnchor(location);
+    const orientation = isVertical(anchor)
+        ? Gtk.Orientation.VERTICAL
+        : Gtk.Orientation.HORIZONTAL;
 
-    const trayItems = createBinding(tray, "items");
-    const time = createTimePoll();
-    const [calendarDate, setCalendarDate] = createState(GLib.DateTime.new_now_local());
-
-    return (
-        <box $type="end" spacing={config.spacing.widgetSpacing}>
-            {/* tray */}
-            <box
-                class="widget"
-                spacing={config.spacing.labelSpacing}
-                visible={trayItems.as(i => i.length > 0)}
-            >
-                <For each={trayItems}>
-                    {trayIcon}
-                </For>
-            </box>
-
-            {/* status icons */}
-            <menubutton class="widget">
-                <box spacing={config.spacing.widgetSpacing}>
-                    {networkIcon("bar-icon")}
-                    {bluetoothIcon("bar-icon")}
-                    {batteryIcon("bar-icon")}
-                </box>
-
-                <popover $={(self) => registerPanel("quick_menu", self)}>
-                    {quickMenu()}
-                </popover>
-            </menubutton>
-
-            {/* time */}
-            <menubutton class="widget">
-                <box spacing={config.spacing.labelSpacing}>
-                    <label label={time.as(t => padNumberStr(t.hour))} />
-                    <label label={time.as(t => padNumberStr(t.minute))} class="accent" />
-                </box>
-                <popover
-                    onShow={() => setCalendarDate(GLib.DateTime.new_now_local())}
-                    $={(self) => registerPanel("calendar", self)}
-                >
-                    <Gtk.Calendar class="widget" date={calendarDate} />
-                </popover>
-            </menubutton>
-        </box>
-    );
-}
-
-export default function bar(monitor: Gdk.Monitor) {
-    const { TOP, LEFT, RIGHT } = Astal.WindowAnchor;
-    const { barSize } = config;
+    const mapWidgets = (names: string[], alignment: "start" | "center" | "end") => names
+        .map(name => {
+            const widget = getWidgetByName(name);
+            if (!widget) {
+                print(`WARNING: widget name "${name}" not recognized!`);
+            }
+            return widget;
+        })
+        .filter(w => !!w)
+        .map(w => w({ orientation, alignment }));
 
     return (
         <window
@@ -138,17 +41,39 @@ export default function bar(monitor: Gdk.Monitor) {
             gdkmonitor={monitor}
             application={app}
             exclusivity={Astal.Exclusivity.EXCLUSIVE}
-            anchor={TOP | LEFT | RIGHT}
+            anchor={locToAnchor(location)}
         >
             <centerbox
                 class="panel"
                 css="border-radius: 0px;"
-                widthRequest={barSize.value}
-                heightRequest={barSize.value}
+                widthRequest={size}
+                heightRequest={size}
+                orientation={orientation}
             >
-                {leftWidgets()}
-                <box hexpand $type="center" />
-                {rightWidgets()}
+                <box
+                    $type="start"
+                    spacing={config.spacing.widgetSpacing}
+                    orientation={orientation}
+                >
+                    {mapWidgets(widgets.start ?? [], "start")}
+                </box>
+
+                <box
+                    hexpand
+                    halign={Gtk.Align.CENTER}
+                    $type="center"
+                    orientation={orientation}
+                >
+                    {mapWidgets(widgets.center ?? [], "center")}
+                </box>
+
+                <box
+                    $type="end"
+                    spacing={config.spacing.widgetSpacing}
+                    orientation={orientation}
+                >
+                    {mapWidgets(widgets.end ?? [], "end")}
+                </box>
             </centerbox>
         </window>
     );
