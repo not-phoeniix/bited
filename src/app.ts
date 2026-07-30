@@ -3,10 +3,16 @@ import style from "./style.scss";
 import { parseArgs } from "./arguments";
 import bar from "./bar";
 import launcher from "./launcher";
+import config from "./config";
 
 function run() {
-    app.monitors.map(monitor => {
-        bar(monitor);
+    app.monitors.forEach((monitor, i) => {
+        config.bars.value().forEach(b => {
+            if (b.monitorIdx === i) {
+                bar(b, monitor);
+            }
+        })
+
         launcher(monitor);
     });
 }

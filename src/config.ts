@@ -1,11 +1,17 @@
-import { createComputed } from "gnim";
 import { AppConfig } from "./types";
 import { StateObject } from "./types";
 import { stateObjectMap } from "./utils";
 
 const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
-    barSize: 20,
-    barLocation: "TOP",
+    bars: [{
+        size: 20,
+        location: "BOTTOM",
+        monitorIdx: 0,
+        widgets: {
+            start: ["workspacesHyprland"],
+            end: ["tray", "statusIcons", "timeCal"],
+        }
+    }],
     workspaces: [
         { id: 1 },
         { id: 2 },
@@ -47,10 +53,10 @@ const launcher = Object.seal({
 
 export default {
     ...config,
-    barIsVertical: () => createComputed(() => {
-        const loc = config.barLocation.value();
-        return loc === "LEFT" || loc === "RIGHT";
-    }),
+    // barIsVertical: () => createComputed(() => {
+    //     const loc = config.barLocation.value();
+    //     return loc === "LEFT" || loc === "RIGHT";
+    // }),
     spacing,
     batteryIcons,
     bluetoothIcons,
