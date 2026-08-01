@@ -124,6 +124,7 @@ menubutton {
         }
     }
 
+    // TODO: fix this so it doesn't highlight when you hover over calendar/popups too
     &.widget:hover {
         background-color: $color_accent;
     }
@@ -135,11 +136,15 @@ menubutton {
 
 levelbar trough {
     background-color: $color_bg;
-    border-radius: 100px;
+    border-radius: $border_radius_widget;
+
+    .empty {
+        border-radius: $border_radius_widget;
+    }
 
     .filled {
         background-color: $color_accent;
-        border-radius: 100px;
+        border-radius: $border_radius_widget;
     }
 }
 
@@ -465,9 +470,10 @@ entry {
 // #region progress popup
 .volume-popup {
     background-color: $color_bg;
-    padding: 0.4em 0.8em;
+    padding: $panel_padding;
     border-radius: $border_radius_volume_popup;
-    box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4);
+    box-shadow: 5px 5px 4px $color_shadow;
+    border: $panel_border;
 
     & levelbar trough {
         background-color: $color_bg_2;

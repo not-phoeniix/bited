@@ -8,7 +8,7 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
         location: "BOTTOM",
         monitorIdx: 0,
         widgets: {
-            start: ["workspacesHyprland"],
+            // start: ["workspacesHyprland"],
             end: ["tray", "statusIcons", "timeCal"],
         }
     }],
@@ -22,7 +22,13 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
         { id: 7, icon: "󰍡", separated: true, },
         { id: 8, icon: "", separated: true, },
         { id: -99, special: true, icon: "󱁤", separated: true, },
-    ]
+    ],
+    volumePopup: {
+        height: 8,
+        width: 300,
+        location: "RIGHT",
+        timeout: 3000,
+    }
 });
 
 const config: StateObject<AppConfig> = stateObjectMap(DEFAULT_CONFIG);

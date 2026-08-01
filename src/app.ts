@@ -3,6 +3,7 @@ import style from "./style.scss";
 import { parseArgs } from "./arguments";
 import bar from "./bar";
 import launcher from "./launcher";
+import volumePopup from "./volume_popup";
 import config from "./config";
 
 function run() {
@@ -13,6 +14,7 @@ function run() {
             }
         })
 
+        volumePopup(monitor);
         launcher(monitor);
     });
 }

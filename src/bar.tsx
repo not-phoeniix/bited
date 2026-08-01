@@ -2,10 +2,10 @@ import app from "ags/gtk4/app";
 import { Astal, Gdk, Gtk } from "ags/gtk4"
 import config from "./config";
 import { getWidgetByName } from "./bar_widgets";
-import { BarDesc } from "./types";
+import { BarDesc, Location } from "./types";
 import { isVertical } from "./utils";
 
-function locToAnchor(loc: "LEFT" | "RIGHT" | "TOP" | "BOTTOM") {
+function locToAnchor(loc: Location) {
     const { TOP, LEFT, RIGHT, BOTTOM } = Astal.WindowAnchor;
     switch (loc) {
         case "LEFT": return TOP | LEFT | BOTTOM;

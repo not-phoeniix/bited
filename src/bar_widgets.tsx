@@ -6,7 +6,7 @@ import { Gtk } from "ags/gtk4";
 import { Accessor, createBinding, createComputed, createState, For } from "gnim";
 import { registerPanel } from "./arguments";
 import config from "./config";
-import { batteryIcon, bluetoothIcon, networkIcon } from "./icons";
+import { batteryIcon, bluetoothIcon, networkIcon, volumeIcon } from "./icons";
 import quickMenu from "./quick_menu";
 import { createTimePoll, padNumberStr } from "./utils";
 import { WorkspaceDesc } from "./types";
@@ -61,6 +61,7 @@ export function statusIcons(props: WidgetProps) {
         <menubutton class="widget">
             <box spacing={config.spacing.widgetSpacing} orientation={props.orientation}>
                 {networkIcon("bar-icon")}
+                {volumeIcon("bar-icon")}
                 {bluetoothIcon("bar-icon")}
                 {batteryIcon("bar-icon")}
             </box>
