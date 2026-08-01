@@ -54,5 +54,7 @@ export function padNumberStr(num: number | string, minDigits: number = 2): strin
 export function isVertical(anchor: number) {
     const { TOP, LEFT, RIGHT, BOTTOM } = Astal.WindowAnchor;
     return anchor === (TOP | LEFT | BOTTOM)
-        || anchor === (TOP | RIGHT | BOTTOM);
+        || anchor === (TOP | RIGHT | BOTTOM)
+        || anchor === LEFT
+        || anchor === RIGHT;
 }

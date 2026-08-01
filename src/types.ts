@@ -9,6 +9,8 @@ export type StateObject<T> = {
     [Prop in keyof T]: State<T[Prop]>;
 };
 
+export type Location = "LEFT" | "RIGHT" | "TOP" | "BOTTOM";
+
 export interface Time {
     hour: number;
     minute: number;
@@ -27,7 +29,7 @@ export interface WorkspaceDesc {
 
 export interface BarDesc {
     size: number;
-    location: "LEFT" | "RIGHT" | "TOP" | "BOTTOM";
+    location: Location;
     monitorIdx: number;
     widgets: {
         start?: string[];
@@ -36,9 +38,17 @@ export interface BarDesc {
     };
 };
 
+export interface VolumePopupDesc {
+    height: number;
+    width: number;
+    timeout: number;
+    location: Location
+};
+
 export interface AppConfig {
     bars: BarDesc[];
     workspaces: WorkspaceDesc[];
+    volumePopup: VolumePopupDesc;
 };
 
 export type ArgumentFunc = (value?: string) => string;
