@@ -84,7 +84,7 @@ export default function launcher(monitor: Gdk.Monitor) {
             css="background-color: transparent;"
             visible={false}
             gdkmonitor={monitor}
-            keymode={Astal.Keymode.ON_DEMAND}
+            keymode={Astal.Keymode.EXCLUSIVE}
             name="app_launcher"
             application={app}
             onShow={() => apps.reload()}
