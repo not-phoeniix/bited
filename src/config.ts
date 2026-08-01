@@ -8,7 +8,7 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
         location: "BOTTOM",
         monitorIdx: 0,
         widgets: {
-            // start: ["workspacesHyprland"],
+            start: ["workspacesHyprland"],
             end: ["tray", "statusIcons", "timeCal"],
         }
     }],
