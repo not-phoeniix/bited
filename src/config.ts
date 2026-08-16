@@ -6,7 +6,7 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
     bars: [
         {
             size: 20,
-            location: "BOTTOM",
+            location: "TOP",
             monitorIdx: 0,
             widgets: {
                 start: ["workspacesHyprland"],
@@ -15,7 +15,7 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
         },
         {
             size: 20,
-            location: "BOTTOM",
+            location: "TOP",
             monitorIdx: 1,
             widgets: {
                 start: ["workspacesHyprland"],

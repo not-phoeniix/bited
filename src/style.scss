@@ -4,72 +4,62 @@
 
 // ~~~ ORIGINAL PRESET ~~~
 
-// $color_bg: $background;
-// $color_bg_2: $color0;
-// $color_fg: $foreground;
-// $color_fg_2: $color8;
-// $color_accent: $color1;
-// $color_accent_2: $color9;
-// $color_alert: $color3;
-// $color_good: $color2;
-// $color_bad: $color1;
-// $color_shadow: rgba(0, 0, 0, 0.4);
-
-// $border_radius_panel: 20px;
-// $border_radius_widget: 14px;
-// $border_radius_small: 8px;
-// $border_radius_volume_popup: 50px;
-// $widget_border: none;
-// $panel_border: none;
-
-// $font-family: Papernotes, Symbols Nerd Font;
-// $font-size: 27px;
-
-// $panel-padding: 0.3em;
-// $widget-padding: 0.3em;
-// $workspace_icon_padding: 0.3em;
-// $button_padding: 5px 10px;
-// $small_item_padding: 0px 5px;
-
-// ~~~ RETRO PRESET ~~~
-
-// $color_bg: #c4c4c4;
-// $color_bg_2: #c4c4c4;
-// $color_fg: #000000;
-// $color_fg_2: #2a2a2a;
-// $color_accent: #00a8a8;
-// $color_accent_2: #0000a8;
-// $color_alert: #fcfc54;
-// $color_good: #00a800;
-// $color_bad: #a80000;
-// $color_shadow: transparent;
 $color_bg: $background;
 $color_bg_2: $color0;
 $color_fg: $foreground;
 $color_fg_2: $color8;
-$color_accent: $color6;
-$color_accent_2: $color4;
+$color_accent: $color1;
+$color_accent_2: $color9;
 $color_alert: $color3;
 $color_good: $color2;
 $color_bad: $color1;
-$color_shadow: transparent;
+$color_shadow: rgba(0, 0, 0, 0.4);
 
-$border_radius_panel: 0px;
-$border_radius_widget: 0px;
-$border_radius_small: 0px;
-$border_radius_volume_popup: 0px;
-$widget_border: 3px inset $color_fg_2;
-$panel_border: 2px groove $color7;
+$border_radius_panel: 20px;
+$border_radius_widget: 14px;
+$border_radius_small: 8px;
+$border_radius_volume_popup: 50px;
+$widget_border: none;
+$panel_border: none;
 
-// $font_family: "W95FA", Symbols Nerd Font;
-$font_family: "Serif Bold", Symbols Nerd Font;
-$font_size: 24px;
+$font-family: Papernotes, Symbols Nerd Font;
+$font-size: 27px;
 
-$panel_padding: 3px;
-$widget_padding: 0px 5px;
-$workspace_icon_padding: 0 0.3em;
-$button_padding: 2px;
-$small_item_padding: 0px;
+$panel-padding: 0.3em;
+$widget-padding: 0.3em;
+$workspace_icon_padding: 0.3em;
+$button_padding: 5px 10px;
+$small_item_padding: 0px 5px;
+
+// ~~~ RETRO PRESET ~~~
+
+// $color_bg: $background;
+// $color_bg_2: $color0;
+// $color_fg: $foreground;
+// $color_fg_2: $color8;
+// $color_accent: $color6;
+// $color_accent_2: $color4;
+// $color_alert: $color3;
+// $color_good: $color2;
+// $color_bad: $color1;
+// $color_shadow: transparent;
+
+// $border_radius_panel: 0px;
+// $border_radius_widget: 0px;
+// $border_radius_small: 0px;
+// $border_radius_volume_popup: 0px;
+// $widget_border: 3px inset $color_fg_2;
+// $panel_border: 2px groove $color7;
+
+// // $font_family: "W95FA", Symbols Nerd Font;
+// $font_family: "Serif Bold", Symbols Nerd Font;
+// $font_size: 24px;
+
+// $panel_padding: 3px;
+// $widget_padding: 0px 5px;
+// $workspace_icon_padding: 0 0.3em;
+// $button_padding: 2px;
+// $small_item_padding: 0px;
 
 // === style code ===============================
 
