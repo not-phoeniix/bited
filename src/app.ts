@@ -5,17 +5,35 @@ import bar from "./bar";
 import launcher from "./launcher";
 import volumePopup from "./volume_popup";
 import config from "./config";
+import { createBinding, createEffect } from "gnim";
+import { Gtk } from "ags/gtk4";
+import GObject from "gnim/gobject";
 
 function run() {
-    app.monitors.forEach((monitor, i) => {
-        config.bars.value().forEach(b => {
-            if (b.monitorIdx === i) {
-                bar(b, monitor);
-            }
-        })
+    let currentWindows: GObject.Object[] = [];
 
-        volumePopup(monitor);
-        launcher(monitor);
+    const monitors = createBinding(app, "monitors");
+    // run every time monitor setup changes
+    createEffect(() => {
+        // destroy prev windows
+        for (let window of currentWindows) {
+            (window as Gtk.Window)?.destroy();
+        }
+        currentWindows = [];
+
+        // create new windows on each monitor change
+        monitors().forEach((monitor, i) => {
+            config.bars.value().forEach(b => {
+                if (b.monitorIdx === i || b.monitorIdx === -1) {
+                    currentWindows.push(bar(b, monitor));
+                }
+            })
+
+            currentWindows.push(
+                volumePopup(monitor),
+                launcher(monitor),
+            );
+        });
     });
 }
 

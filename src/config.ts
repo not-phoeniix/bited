@@ -3,15 +3,26 @@ import { StateObject } from "./types";
 import { stateObjectMap } from "./utils";
 
 const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
-    bars: [{
-        size: 20,
-        location: "BOTTOM",
-        monitorIdx: 0,
-        widgets: {
-            start: ["workspacesHyprland"],
-            end: ["tray", "statusIcons", "timeCal"],
-        }
-    }],
+    bars: [
+        {
+            size: 20,
+            location: "BOTTOM",
+            monitorIdx: 0,
+            widgets: {
+                start: ["workspacesHyprland"],
+                end: ["tray", "statusIcons", "timeCal"],
+            }
+        },
+        {
+            size: 20,
+            location: "BOTTOM",
+            monitorIdx: 1,
+            widgets: {
+                start: ["workspacesHyprland"],
+                end: ["timeCal"],
+            }
+        },
+    ],
     workspaces: [
         { id: 1 },
         { id: 2 },
