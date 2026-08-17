@@ -1,4 +1,3 @@
-// import AstalRiver from "gi://AstalRiver";
 import AstalHyprland from "gi://AstalHyprland";
 import AstalTray from "gi://AstalTray";
 import GLib from "gi://GLib";
@@ -11,6 +10,7 @@ import quickMenu from "./quick_menu";
 import { createTimePoll, padNumberStr } from "./utils";
 import { WorkspaceDesc } from "./types";
 import GObject from "gnim/gobject";
+import KWM from "./kwm";
 
 interface WidgetProps {
     orientation: Gtk.Orientation;
@@ -92,29 +92,43 @@ export function timeCal(props: WidgetProps) {
     )
 }
 
-// TODO: workspacesRiver
+// TODO: windowTitleKwm
 
-export function workspacesHyprland(props: WidgetProps) {
-    // hyprland state
+export function windowTitleHyprland(props: WidgetProps) {
     const hyprland = AstalHyprland.get_default();
     if (!hyprland) return (<box></box>);
-    const focusedId = createBinding(hyprland, "focusedWorkspace").as((ws) => ws.id);
-    const workspaces = createBinding(hyprland, "workspaces");
 
+    const focusedTitle = createBinding(hyprland, "focusedClient")
+        .as(client => client.title);
+
+    return (
+        <box class="widget">
+            <label label={focusedTitle} />
+        </box>
+    );
+}
+
+function workspacesGeneric(
+    focusedIds: Accessor<number[]>,
+    existsIds: Accessor<number[]>,
+    onWsClicked: (ws: WorkspaceDesc) => void,
+    props: WidgetProps
+) {
     // can map from a workspace desc to a button widget
     function workspaceIcon(ws: WorkspaceDesc) {
-        const focused = createComputed(() => focusedId() === ws.id || !!ws.special);
-        const exists = createComputed(() => !!workspaces().find(({ id }) => id === ws.id));
+        const focused = createComputed(
+            () => focusedIds().find(id => id === ws.id) !== undefined || ws.special
+        );
+        const exists = createComputed(
+            () => existsIds().find((id) => id === ws.id) !== undefined
+        );
 
         return (
             <button
                 label={exists.as(e => ws.icon ?? (e ? "" : ""))}
                 class={focused.as(f => `workspace ${f ? "focused" : ""}`)}
                 visible={exists.as(e => e || !ws.separated)}
-                onClicked={() => ws.id < 0
-                    ? hyprland.dispatch("togglespecialworkspace", "")
-                    : hyprland.dispatch("workspace", `${ws.id}`)
-                }
+                onClicked={() => onWsClicked(ws)}
             />
         );
     }
@@ -149,11 +163,50 @@ export function workspacesHyprland(props: WidgetProps) {
     );
 }
 
+export function tagsKwm(props: WidgetProps) {
+    const kwm = KWM.get_default();
+
+    const activeTags = createBinding(kwm, "activeTags");
+    const existingTags = activeTags;
+
+    return workspacesGeneric(
+        activeTags,
+        existingTags,
+        () => { },
+        props
+    );
+}
+
+export function workspacesHyprland(props: WidgetProps) {
+    // hyprland state
+    const hyprland = AstalHyprland.get_default();
+    if (!hyprland) return (<box></box>);
+
+    const focusedIds = createBinding(hyprland, "focusedWorkspace").as((ws) => [ws.id]);
+    const existsIds = createBinding(hyprland, "workspaces")
+        .as(workspaces => workspaces.map(ws => ws.id));
+
+    return workspacesGeneric(
+        focusedIds,
+        existsIds,
+        (ws) => {
+            if (ws.id < 0) {
+                hyprland.dispatch("togglespecialworkspace", "");
+            } else {
+                hyprland.dispatch("workspace", `${ws.id}`);
+            }
+        },
+        props
+    );
+}
+
 const FUNCTIONS: Record<string, (props: WidgetProps) => GObject.Object> = {
     tray,
     statusIcons,
     timeCal,
-    workspacesHyprland
+    windowTitleHyprland,
+    tagsKwm,
+    workspacesHyprland,
 };
 
 export function getWidgetByName(name: string) {

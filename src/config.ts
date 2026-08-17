@@ -9,7 +9,7 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
             location: "TOP",
             monitorIdx: 0,
             widgets: {
-                start: ["workspacesHyprland"],
+                start: ["tagsKwm"],
                 end: ["tray", "statusIcons", "timeCal"],
             }
         },
@@ -18,7 +18,7 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
             location: "TOP",
             monitorIdx: 1,
             widgets: {
-                start: ["workspacesHyprland"],
+                // start: ["workspacesHyprland"],
                 end: ["timeCal"],
             }
         },
@@ -32,7 +32,6 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
         { id: 6, icon: "", separated: true, },
         { id: 7, icon: "󰍡", separated: true, },
         { id: 8, icon: "", separated: true, },
-        { id: -99, special: true, icon: "󱁤", separated: true, },
     ],
     volumePopup: {
         height: 8,

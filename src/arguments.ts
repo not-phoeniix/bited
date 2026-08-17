@@ -16,10 +16,9 @@ export const ARGS: Record<string, ArgumentFunc> = Object.seal({
 const popovers: Record<string, Gtk.Popover[]> = {};
 const windows: Record<string, Gtk.Window[]> = {};
 
-const HELP_MESSAGE = `
-[bitshell] - A minimal GTK shell
-
-Usage: bitshell [options]
+const HELP_MESSAGE = (panelNames: string[]) => `
+Usage: bitshell [OPTION]
+A tiny custom GTK desktop environment
 
 Options: 
   help, -h, --help
@@ -29,10 +28,13 @@ Options:
     prints a specified message and exits
 
   toggle, -t, --toggle-panel [PANEL]
-    toggles the visibility a panel
-    possible panels include:
-      - "calendar"
-      - "quick_menu"
+    toggles the visibility of one of the following panels:
+    [${panelNames.join(", ")}]
+
+Examples:
+  bitshell &\t\t\tlaunches bitshell asynchronously
+  bitshell toggle launcher\ttoggles the app launcher
+  bitshell -m hi\t\t"hi"
 `.trim();
 
 function printMessage(value?: string) {
@@ -40,7 +42,10 @@ function printMessage(value?: string) {
 }
 
 function printHelp() {
-    return HELP_MESSAGE;
+    return HELP_MESSAGE([
+        ...Object.keys(popovers),
+        ...Object.keys(windows)
+    ]);
 }
 
 function togglePanel(panelName?: string) {
