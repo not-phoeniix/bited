@@ -41,8 +41,6 @@ export default class KWM extends GObject.Object {
                 tagMap[tag]++;
             }
 
-            print(tagMap);
-
             // sort all tags and set value, then notify
             this.#activeTags = tagMap
                 .map((count, index) => count % 2 !== 0 ? index : undefined)
