@@ -29,14 +29,8 @@ export default class KWM extends GObject.Object {
         const kwmTmpPath = `/tmp/kwm/`;
 
         monitorFile(`${kwmTmpPath}/tags`, async f => {
-            print("wow...");
-
             const fileStr = await readFileAsync(f);
-            print(fileStr);
-
             const tagsUncounted = fileStr.split("\n").map(tag => Number(tag));
-
-            print(tagsUncounted);
 
             // count the occurence of all tags
             // (even counts means tag is disabled, odd is enabled)
