@@ -29,10 +29,13 @@ function run() {
                 }
             })
 
-            currentWindows.push(
-                volumePopup(monitor),
-                launcher(monitor),
-            );
+            // only apply popup and launcher to primary monitor
+            if (i === 0) {
+                currentWindows.push(
+                    volumePopup(monitor),
+                    launcher(monitor),
+                );
+            }
         });
     });
 }
