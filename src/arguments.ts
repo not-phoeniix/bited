@@ -17,7 +17,7 @@ const popovers: Record<string, Gtk.Popover[]> = {};
 const windows: Record<string, Gtk.Window[]> = {};
 
 const HELP_MESSAGE = (panelNames: string[]) => `
-Usage: bitshell [OPTION]
+Usage: bited [OPTION]
 A tiny custom GTK desktop environment
 
 Options: 
@@ -32,9 +32,9 @@ Options:
     [${panelNames.join(", ")}]
 
 Examples:
-  bitshell &\t\t\tlaunches bitshell asynchronously
-  bitshell toggle launcher\ttoggles the app launcher
-  bitshell -m hi\t\t"hi"
+  bited &\t\t\tlaunches bited asynchronously
+  bited toggle launcher\ttoggles the app launcher
+  bited -m hi\t\t"hi"
 `.trim();
 
 function printMessage(value?: string) {

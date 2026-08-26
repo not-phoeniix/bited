@@ -41,7 +41,7 @@ function run() {
 }
 
 app.start({
-    instanceName: "bitshell",
+    instanceName: "bited",
     css: style,
     requestHandler(argv: string[], res) {
         let retStr = "";

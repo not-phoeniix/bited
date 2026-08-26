@@ -1,5 +1,5 @@
 {
-  "name": "bitshell",
+  "name": "bited",
   "version": "0.1.0",
   "dependencies": {
     "ags": "*",
