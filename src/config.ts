@@ -1,38 +1,21 @@
-import { AppConfig } from "./types";
+import { readFileAsync } from "ags/file";
+import { AppConfig, isAppConfig } from "./types";
 import { StateObject } from "./types";
-import { stateObjectMap } from "./utils";
+import { stateObjectMap, monitorFile } from "./utils";
 
 const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
     bars: [
         {
-            size: 20,
+            size: 30,
             location: "TOP",
-            monitorIdx: 0,
+            monitorIdx: -1,
             widgets: {
-                start: ["tagsKwm"],
-                end: ["tray", "statusIcons", "timeCal"],
+                start: ["timeCal"],
+                end: ["tray", "statusIcons"],
             }
-        },
-        {
-            size: 20,
-            location: "TOP",
-            monitorIdx: 1,
-            widgets: {
-                // start: ["workspacesHyprland"],
-                end: ["timeCal"],
-            }
-        },
+        }
     ],
-    workspaces: [
-        { id: 1 },
-        { id: 2 },
-        { id: 3 },
-        { id: 4 },
-        { id: 5 },
-        { id: 6, icon: "", separated: true, },
-        { id: 7, icon: "󰍡", separated: true, },
-        { id: 8, icon: "", separated: true, },
-    ],
+    workspaces: Array(10).map((_, i) => ({ id: i + 1 })),
     volumePopup: {
         height: 8,
         width: 300,
@@ -67,12 +50,38 @@ const launcher = Object.seal({
     widthPx: 600,
 });
 
+async function loadFileConfig(path: string) {
+    try {
+        const str = await readFileAsync(path);
+        const configParsed = JSON.parse(str);
+
+        if (!isAppConfig(configParsed)) {
+            console.warn(`WARNING: config file format at "${path}" not valid!`)
+            return;
+        }
+
+        config.bars.set(configParsed.bars);
+        config.workspaces.set(configParsed.workspaces);
+        config.volumePopup.set(configParsed.volumePopup);
+
+    } catch (err) {
+        console.error(`CONFIG PARSE ERR: ${err}`);
+    }
+}
+
+export function monitorConfigFile(path: string) {
+    console.log(`monitoring config file "${path}"...`);
+
+    try {
+        loadFileConfig(path);
+        monitorFile(path, loadFileConfig);
+    } catch (err) {
+        console.error(`ERR: ${err}`);
+    }
+}
+
 export default {
     ...config,
-    // barIsVertical: () => createComputed(() => {
-    //     const loc = config.barLocation.value();
-    //     return loc === "LEFT" || loc === "RIGHT";
-    // }),
     spacing,
     batteryIcons,
     bluetoothIcons,

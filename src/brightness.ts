@@ -4,7 +4,8 @@
 // (modified to work with AGS 3.0)
 
 import GObject, { register, getter, setter } from "ags/gobject"
-import { monitorFile, readFileAsync } from "ags/file"
+import { readFileAsync } from "ags/file"
+import { monitorFile } from "./utils"
 import { exec, execAsync } from "ags/process"
 
 const get = (args: string) => Number(exec(`brightnessctl ${args}`))
