@@ -32,7 +32,7 @@ export interface WorkspaceDesc {
 export interface BarDesc {
     size: number;
     location: Location;
-    monitorIdx: number;
+    monitorIdx: number | number[];
     widgets: {
         start?: string[];
         center?: string[];
@@ -83,6 +83,7 @@ export function isTypedArray<T>(arg: any, predicate: (v: any) => v is T): arg is
 
 export function isBarDesc(arg: any): arg is BarDesc {
     const isStringArray = (arg: any) => isTypedArray<string>(arg, (v) => typeof v === "string");
+    const isNumArray = (arg: any) => isTypedArray<number>(arg, (v) => typeof v === "number");
 
     function isBarDescWidgets(arg: any): boolean {
         return typeof (arg.start === "undefined" || isStringArray(arg.start)) &&
@@ -92,7 +93,7 @@ export function isBarDesc(arg: any): arg is BarDesc {
 
     return typeof arg.size === "number" &&
         isLocation(arg.location) &&
-        typeof arg.monitorIdx === "number" &&
+        (typeof arg.monitorIdx === "number" || isNumArray(arg.monitorIdx)) &&
         isBarDescWidgets(arg.widgets);
 }
 

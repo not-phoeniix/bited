@@ -30,7 +30,14 @@ function run() {
         // create new windows on each monitor change
         monitors().forEach((monitor, i) => {
             config.bars.value().forEach(b => {
-                if (b.monitorIdx === i || b.monitorIdx === -1) {
+                const indices = Array.isArray(b.monitorIdx)
+                    ? b.monitorIdx
+                    : [b.monitorIdx];
+
+                const hasThisIndex = indices.findIndex((v) => v === i) !== -1;
+                const hasAllIndices = indices.findIndex((v) => v === -1) !== -1;
+
+                if (hasThisIndex || hasAllIndices) {
                     currentWindows.push(bar(b, monitor));
                 }
             })
