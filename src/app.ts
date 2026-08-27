@@ -1,25 +1,31 @@
 import app from "ags/gtk4/app";
 import style from "./style.scss";
-import { parseArgs } from "./arguments";
+import { deregisterAllPanels, parseArgs } from "./arguments";
 import bar from "./bar";
 import launcher from "./launcher";
 import volumePopup from "./volume_popup";
-import config from "./config";
+import config, { monitorConfigFile } from "./config";
+import paths, { makePath } from "./paths";
 import { createBinding, createEffect } from "gnim";
 import { Gtk } from "ags/gtk4";
 import GObject from "gnim/gobject";
 
 function run() {
+    monitorConfigFile(makePath(`${paths.APP_CONFIG_DIR}/config.json`));
+
     let currentWindows: GObject.Object[] = [];
 
     const monitors = createBinding(app, "monitors");
-    // run every time monitor setup changes
+    // run every time monitor setup changes or config updates
     createEffect(() => {
-        // destroy prev windows
+        // destroy everything previous
         for (let window of currentWindows) {
-            (window as Gtk.Window)?.destroy();
+            if (window instanceof Gtk.Window && window.get_surface() != null) {
+                window.destroy();
+            }
         }
-        currentWindows = [];
+        currentWindows.splice(0);
+        deregisterAllPanels();
 
         // create new windows on each monitor change
         monitors().forEach((monitor, i) => {

@@ -13,8 +13,8 @@ export const ARGS: Record<string, ArgumentFunc> = Object.seal({
     "-t": togglePanel,
 });
 
-const popovers: Record<string, Gtk.Popover[]> = {};
-const windows: Record<string, Gtk.Window[]> = {};
+let popovers: Record<string, Gtk.Popover[]> = {};
+let windows: Record<string, Gtk.Window[]> = {};
 
 const HELP_MESSAGE = (panelNames: string[]) => `
 Usage: bited [OPTION]
@@ -120,4 +120,9 @@ export function registerPanel(name: string, panel: Gtk.Popover | Gtk.Window) {
     } else {
         windows[name] = [...(windows[name] ?? []), panel];
     }
+}
+
+export function deregisterAllPanels() {
+    popovers = {};
+    windows = {};
 }

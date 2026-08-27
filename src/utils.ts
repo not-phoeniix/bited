@@ -3,6 +3,7 @@ import { createPoll } from "ags/time";
 import { StateObject, Time } from "./types";
 import { createState } from "gnim";
 import { Astal } from "ags/gtk4";
+import Gio from "gi://Gio";
 
 const DEFAULT_TIME: Time = Object.seal({
     hour: 0,
@@ -57,4 +58,37 @@ export function isVertical(anchor: number) {
         || anchor === (TOP | RIGHT | BOTTOM)
         || anchor === LEFT
         || anchor === RIGHT;
+}
+
+// keep in scope so they "survive".....................................................
+const monitorFiles = new Set<Gio.FileMonitor>();
+
+export function monitorFile(path: string, callback: (filePath: string) => void) {
+    const originalFile = Gio.File.new_for_path(path);
+    if (!originalFile.query_exists(null)) {
+        return null;
+    }
+
+    const monitor = originalFile.monitor(Gio.FileMonitorFlags.WATCH_HARD_LINKS, null);
+
+    monitor.connect("changed", (_, file, _2, e) => {
+        const newPath = file.get_path();
+
+        // don't operate on invalid or changed/moved file paths
+        if (!newPath || newPath !== originalFile.get_path()) {
+            return;
+        }
+
+        if (e === Gio.FileMonitorEvent.CHANGES_DONE_HINT) {
+            callback(newPath);
+        }
+    });
+
+    monitorFiles.add(monitor);
+    return monitor;
+}
+
+export function cancelFileMonitor(monitor: Gio.FileMonitor) {
+    monitorFiles.delete(monitor);
+    monitor.cancel();
 }

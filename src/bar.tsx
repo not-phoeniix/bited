@@ -27,7 +27,7 @@ export default function bar(barConfig: BarDesc, monitor: Gdk.Monitor) {
         .map(name => {
             const widget = getWidgetByName(name);
             if (!widget) {
-                print(`WARNING: widget name "${name}" not recognized!`);
+                console.warn(`WARNING: widget name "${name}" not recognized!`);
             }
             return widget;
         })
