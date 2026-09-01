@@ -1,7 +1,7 @@
 import AstalHyprland from "gi://AstalHyprland";
 import AstalTray from "gi://AstalTray";
 import GLib from "gi://GLib";
-import { Gtk } from "ags/gtk4";
+import { Gdk, Gtk } from "ags/gtk4";
 import { Accessor, createBinding, createComputed, createState, For } from "gnim";
 import { registerPanel } from "./arguments";
 import config from "./config";
@@ -57,6 +57,10 @@ export function tray(props: WidgetProps) {
 }
 
 export function statusIcons(props: WidgetProps) {
+    const popoverPos = props.orientation == Gtk.Orientation.HORIZONTAL
+        ? Gtk.PositionType.BOTTOM
+        : Gtk.PositionType.RIGHT;
+
     return (
         <menubutton class="widget">
             <box spacing={config.spacing.widgetSpacing} orientation={props.orientation}>
@@ -65,7 +69,10 @@ export function statusIcons(props: WidgetProps) {
                 {bluetoothIcon("bar-icon")}
                 {batteryIcon("bar-icon")}
             </box>
-            <popover $={(self) => registerPanel("quick_menu", self)}>
+            <popover
+                position={popoverPos}
+                $={(self) => registerPanel("quick_menu", self)}
+            >
                 {quickMenu()}
             </popover>
         </menubutton>
@@ -123,9 +130,10 @@ function workspacesGeneric(
             () => existsIds().find((id) => id === ws.id) !== undefined
         );
 
+        const { empty, notEmpty } = config.defaultWorkspaceIcons;
         return (
             <button
-                label={exists.as(e => ws.icon ?? (e ? "" : ""))}
+                label={exists.as(e => ws.icon ?? (e ? notEmpty : empty))}
                 class={focused.as(f => `workspace ${f ? "focused" : ""}`)}
                 visible={exists.as(e => e || !ws.separated)}
                 onClicked={() => onWsClicked(ws)}

@@ -105,17 +105,16 @@ export function networkIcon(extraClass: string) {
 export function volumeIcon(extraClass: string) {
     const audio = AstalWp.get_default();
 
-    const ICON_MUTED = "󰝟";
-    const ICONS_REGULAR = ["󰕿", "󰖀", "󰕾"];
+    const { unmutedLevels, muted } = config.volumeIcons;
     const defaultSpeaker = createBinding(audio, "defaultSpeaker");
     const volume = createBinding(defaultSpeaker(), "volume");
-    const muted = createBinding(defaultSpeaker(), "mute");
+    const isMuted = createBinding(defaultSpeaker(), "mute");
 
     const label = createComputed(() => {
-        let index = Math.floor(volume() * ICONS_REGULAR.length);
+        let index = Math.floor(volume() * unmutedLevels.length);
         if (index < 0) index = 0;
-        if (index >= ICONS_REGULAR.length) index = ICONS_REGULAR.length - 1;
-        return muted() ? ICON_MUTED : ICONS_REGULAR[index];
+        if (index >= unmutedLevels.length) index = unmutedLevels.length - 1;
+        return isMuted() ? muted : unmutedLevels[index];
     });
 
     return (
