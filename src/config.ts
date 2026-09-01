@@ -32,16 +32,41 @@ const spacing = Object.seal({
 });
 
 const batteryIcons = Object.seal({
-    charging: "󰂄",
-    full: "󱈑",
-    discharging: ["󱃍", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "�", "�󰂁", "󰂂", "󰁹"],
-    unknown: "󰂑",
+    charging: "\udb80\udc84",
+    full: "\udb84\ude11",
+    discharging: [
+        "\udb80\udc7a", // 10%
+        "\udb80\udc7b", // 20%
+        "\udb80\udc7c", // 30%
+        "\udb80\udc7d", // 40%
+        "\udb80\udc7e", // 50%
+        "\udb80\udc7f", // 60%
+        "\udb80\udc80", // 70%
+        "\udb80\udc81", // 80%
+        "\udb80\udc82", // 90%
+        "\udb80\udc79", // 100%
+    ],
+    unknown: "\udb85\udfe9",
 });
 
 const bluetoothIcons = Object.seal({
-    connected: "󰂱",
-    enabled: "󰂯",
-    disabled: "󰂲",
+    connected: "\udb80\udcb1",
+    enabled: "\uf294",
+    disabled: "\udb80\udcb2",
+});
+
+const volumeIcons = Object.seal({
+    muted: "\udb81\udf5f",
+    unmutedLevels: [
+        "\udb81\udd7f", // lo
+        "\udb81\udd80", // med
+        "\udb81\udd7e", // hi ( :] )
+    ],
+});
+
+const defaultWorkspaceIcons = Object.seal({
+    empty: "\uf4aa",
+    notEmpty: "\uf111",
 });
 
 const launcher = Object.seal({
@@ -85,5 +110,7 @@ export default {
     spacing,
     batteryIcons,
     bluetoothIcons,
+    volumeIcons,
+    defaultWorkspaceIcons,
     launcher,
 };
