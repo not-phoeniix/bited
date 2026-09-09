@@ -19,17 +19,24 @@ export function batteryIcon(extraClass: string) {
     const percentage = createBinding(battery, "percentage");
     const state = createBinding(battery, "state");
     const icon = createComputed(() => {
+        const { discharging, charging, full, unknown, critical } = config.batteryIcons;
+
         switch (state()) {
             case AstalBattery.State.DISCHARGING:
-                const idx = Math.ceil(percentage() * config.batteryIcons.discharging.length) - 1;
-                return config.batteryIcons.discharging[idx];
+                if (percentage() < 0.15) {
+                    return critical;
+                }
+
+                const dischargeIdx = Math.ceil(percentage() * discharging.length) - 1;
+                return discharging[dischargeIdx];
             case AstalBattery.State.CHARGING:
-                return config.batteryIcons.charging;
+                const chargeIdx = Math.ceil(percentage() * charging.length) - 1;
+                return charging[chargeIdx];
             case AstalBattery.State.FULLY_CHARGED:
-                return config.batteryIcons.full;
+                return full;
         }
 
-        return config.batteryIcons.unknown;
+        return unknown;
     });
 
     const labelClass = createComputed(() => {

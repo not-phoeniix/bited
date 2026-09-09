@@ -32,7 +32,18 @@ const spacing = Object.seal({
 });
 
 const batteryIcons = Object.seal({
-    charging: "\udb80\udc84",
+    charging: [
+        "\udb82\udc9c", // 10% 
+        "\udb80\udc86", // 20%
+        "\udb80\udc87", // 30%
+        "\udb80\udc88", // 40%
+        "\udb82\udc9d", // 50%
+        "\udb80\udc89", // 60%
+        "\udb82\udc9e", // 70%
+        "\udb80\udc8a", // 80%
+        "\udb80\udc8b", // 90%
+        "\udb80\udc85", // 100%
+    ],
     full: "\udb84\ude11",
     discharging: [
         "\udb80\udc7a", // 10%
@@ -46,6 +57,7 @@ const batteryIcons = Object.seal({
         "\udb80\udc82", // 90%
         "\udb80\udc79", // 100%
     ],
+    critical: "\udb84\udccd",
     unknown: "\udb85\udfe9",
 });
 
