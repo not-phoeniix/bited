@@ -87,10 +87,19 @@ const launcher = Object.seal({
     widthPx: 600,
 });
 
+let prevConfigStr = JSON.stringify(DEFAULT_CONFIG);
 async function loadFileConfig(path: string) {
     try {
         const str = await readFileAsync(path);
         const configParsed = JSON.parse(str);
+        const configReStringed = JSON.stringify(configParsed);
+
+        // no need to reload if it's the same config
+        if (configReStringed === prevConfigStr) {
+            return;
+        }
+
+        prevConfigStr = configReStringed;
 
         if (!isAppConfig(configParsed)) {
             console.warn(`WARNING: config file format at "${path}" not valid!`)
