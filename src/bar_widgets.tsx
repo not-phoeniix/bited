@@ -8,13 +8,15 @@ import config from "./config";
 import { batteryIcon, bluetoothIcon, networkIcon, volumeIcon } from "./icons";
 import quickMenu from "./quick_menu";
 import { createTimePoll, padNumberStr } from "./utils";
-import { WorkspaceDesc } from "./types";
+import { isTypedArray, isWorkspaceDesc, isWorkspacesNiriDesc, WidgetDesc, WorkspaceDesc, WorkspacesNiriDesc } from "./types";
 import GObject from "gnim/gobject";
 import KWM from "./kwm";
+import Niri, { NiriWorkspace } from "./niri";
 
 interface WidgetProps {
     orientation: Gtk.Orientation;
     alignment: "start" | "center" | "end";
+    desc: WidgetDesc;
 };
 
 // example on how the hell to do this found at:
@@ -99,8 +101,6 @@ export function timeCal(props: WidgetProps) {
     )
 }
 
-// TODO: windowTitleKwm
-
 export function windowTitleHyprland(props: WidgetProps) {
     const hyprland = AstalHyprland.get_default();
     if (!hyprland) return (<box></box>);
@@ -111,6 +111,24 @@ export function windowTitleHyprland(props: WidgetProps) {
     return (
         <box class="widget">
             <label label={focusedTitle} />
+        </box>
+    );
+}
+
+export function windowTitleNiri(props: WidgetProps) {
+    if (props.orientation === Gtk.Orientation.VERTICAL) {
+        return (<box></box>);
+    }
+
+    const niri = Niri.get_default();
+    if (!niri) return (<box></box>);
+
+    const focusedTitle = createBinding(niri, "focusedWindow")
+        .as(w => w?.title || "");
+
+    return (
+        <box class="widget" visible={focusedTitle.as(t => t.length > 0)}>
+            <label class="window-title" label={focusedTitle} />
         </box>
     );
 }
@@ -141,10 +159,16 @@ function workspacesGeneric(
         );
     }
 
+    const workspaces = props.desc.workspaces;
+    if (!isTypedArray<WorkspaceDesc>(workspaces, isWorkspaceDesc)) {
+        console.warn("error in parsing workspace descriptions!");
+        return (<box></box>);
+    }
+
     // separate defined workspaces in config into "grouped" and 
     //   "separated" lists, and render in separate boxes later
-    const grouped = createComputed(() => config.workspaces.value().filter(ws => !ws.separated));
-    const separated = createComputed(() => config.workspaces.value().filter(ws => ws.separated));
+    const grouped = createComputed(() => workspaces.filter(ws => !ws.separated));
+    const separated = createComputed(() => workspaces.filter(ws => ws.separated));
 
     const reversed = props.alignment === "end";
 
@@ -208,13 +232,70 @@ export function workspacesHyprland(props: WidgetProps) {
     );
 }
 
+export function workspacesNiri(props: WidgetProps) {
+    const { desc } = props;
+    if (!isWorkspacesNiriDesc(desc)) {
+        console.warn("improper formatting for workspacesNiri properties!");
+        return (<box></box>);
+    }
+
+    // niri state
+    const niri = Niri.get_default();
+    if (!niri) return (<box></box>);
+
+    const workspaces = createBinding(niri, "workspaces")
+        .as(workspaces => workspaces.sort((a, b) => a.idx - b.idx));
+    const activeWorkspace = createBinding(niri, "activeWorkspace");
+
+    function workspaceIcon(ws: NiriWorkspace) {
+        let icon = (desc as WorkspacesNiriDesc).namedWorkspaces
+            .find(namedWs => namedWs.name === ws.name)?.icon;
+
+        if (!icon) {
+            const { empty, notEmpty } = config.defaultWorkspaceIcons;
+
+            if (ws.active_window_id !== null) {
+                icon = notEmpty;
+            } else {
+                icon = empty;
+            }
+        }
+
+        const isActive = activeWorkspace.as(active => active.id === ws.id);
+        return (
+            <button
+                label={icon}
+                class={isActive.as(a => `workspace ${a ? "focused" : ""}`)}
+                onClicked={() => niri.action(`focus-workspace ${ws.idx}`)}
+            />
+        );
+    }
+
+    const reversed = props.alignment === "end";
+
+    return (
+        <box
+            spacing={config.spacing.widgetSpacing}
+            orientation={props.orientation}
+        >
+            <box class="widget" orientation={props.orientation}>
+                <For each={workspaces.as(w => reversed ? w.reverse() : w)}>
+                    {workspaceIcon}
+                </For>
+            </box>
+        </box>
+    );
+}
+
 const FUNCTIONS: Record<string, (props: WidgetProps) => GObject.Object> = {
     tray,
     statusIcons,
     timeCal,
     windowTitleHyprland,
+    windowTitleNiri,
     tagsKwm,
     workspacesHyprland,
+    workspacesNiri,
 };
 
 export function getWidgetByName(name: string) {

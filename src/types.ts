@@ -29,14 +29,39 @@ export interface WorkspaceDesc {
     separated?: boolean
 };
 
+export interface WidgetDesc {
+    name: string;
+
+    // any additional config properties
+    [key: string]: any;
+};
+
+export interface WorkspacesHyprlandDesc {
+    name: "workspacesHyprland";
+    workspaces: WorkspaceDesc[];
+};
+
+export interface TagsKWMDesc {
+    name: "tagsKwm";
+    workspaces: WorkspaceDesc[];
+}
+
+export interface WorkspacesNiriDesc {
+    name: "workspacesNiri";
+    namedWorkspaces: {
+        name: string;
+        icon: string;
+    }[];
+};
+
 export interface BarDesc {
     size: number;
     location: Location;
     monitorIdx: number | number[];
     widgets: {
-        start?: string[];
-        center?: string[];
-        end?: string[];
+        start?: (WidgetDesc | string)[];
+        center?: (WidgetDesc | string)[];
+        end?: (WidgetDesc | string)[];
     };
 };
 
@@ -49,7 +74,6 @@ export interface VolumePopupDesc {
 
 export interface AppConfig {
     bars: BarDesc[];
-    workspaces: WorkspaceDesc[];
     volumePopup: VolumePopupDesc;
 };
 
@@ -67,7 +91,7 @@ export function isLocation(arg: any): arg is Location {
     return arg === "LEFT" || arg === "RIGHT" || arg === "TOP" || arg === "BOTTOM";
 }
 
-export function isTypedArray<T>(arg: any, predicate: (v: any) => v is T): arg is T[] {
+export function isTypedArray<T>(arg: any, predicate: (v: any) => boolean): arg is T[] {
     if (!Array.isArray(arg)) {
         return false;
     }
@@ -81,27 +105,55 @@ export function isTypedArray<T>(arg: any, predicate: (v: any) => v is T): arg is
     return true;
 }
 
+export function isWorkspaceDesc(arg: any): arg is WorkspaceDesc {
+    return (
+        typeof arg.id === "number" &&
+        (typeof arg.icon === "undefined" || typeof arg.icon === "string") &&
+        (typeof arg.special === "undefined" || typeof arg.special === "boolean") &&
+        (typeof arg.separated === "undefined" || typeof arg.separated === "boolean")
+    );
+}
+
+export function isTagsKWMDesc(arg: any): arg is TagsKWMDesc {
+    return arg.name === "tagsKwm" &&
+        isTypedArray(arg.workspaces, isWorkspaceDesc);
+}
+
+export function isWorkspacesHyprlandDesc(arg: any): arg is WorkspacesHyprlandDesc {
+    return arg.name === "workspacesHyprland" &&
+        isTypedArray(arg.workspaces, isWorkspaceDesc);
+}
+
+export function isWorkspacesNiriDesc(arg: any): arg is WorkspacesNiriDesc {
+    return arg.name === "workspacesNiri" &&
+        isTypedArray(arg.namedWorkspaces, (v) => {
+            return typeof v.name === "string" &&
+                typeof v.icon === "string";
+        });
+}
+
 export function isBarDesc(arg: any): arg is BarDesc {
     const isStringArray = (arg: any) => isTypedArray<string>(arg, (v) => typeof v === "string");
     const isNumArray = (arg: any) => isTypedArray<number>(arg, (v) => typeof v === "number");
+    const isWidgetDesc = (arg: any) => typeof arg === "string" || typeof arg.name === "string";
+    const isWidgetDescArray = (arg: any) => isTypedArray(arg, isWidgetDesc);
 
-    function isBarDescWidgets(arg: any): boolean {
-        return typeof (arg.start === "undefined" || isStringArray(arg.start)) &&
-            (typeof arg.center === "undefined" || isStringArray(arg.center)) &&
-            (typeof arg.end === "undefined" || isStringArray(arg.end));
+    function isBarDescWidgetsArg(arg: any): boolean {
+        return typeof arg === "undefined" ||
+            isStringArray(arg) ||
+            isWidgetDescArray(arg);
+    }
+
+    function isBarDescWidgets(arg: any) {
+        return isBarDescWidgetsArg(arg.start) &&
+            isBarDescWidgetsArg(arg.center) &&
+            isBarDescWidgetsArg(arg.end);
     }
 
     return typeof arg.size === "number" &&
         isLocation(arg.location) &&
         (typeof arg.monitorIdx === "number" || isNumArray(arg.monitorIdx)) &&
         isBarDescWidgets(arg.widgets);
-}
-
-export function isWorkspaceDesc(arg: any): arg is WorkspaceDesc {
-    return typeof arg.id === "number" &&
-        (typeof arg.icon === "undefined" || typeof arg.icon === "string") &&
-        (typeof arg.special === "undefined" || typeof arg.special === "boolean") &&
-        (typeof arg.separated === "undefined" || typeof arg.separated === "boolean");
 }
 
 export function isVolumePopupDesc(arg: any): arg is VolumePopupDesc {
@@ -113,6 +165,5 @@ export function isVolumePopupDesc(arg: any): arg is VolumePopupDesc {
 
 export function isAppConfig(arg: any): arg is AppConfig {
     return isTypedArray<BarDesc>(arg.bars, isBarDesc) &&
-        isTypedArray<WorkspaceDesc>(arg.workspaces, isWorkspaceDesc) &&
         isVolumePopupDesc(arg.volumePopup);
 }
