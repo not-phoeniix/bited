@@ -15,7 +15,6 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
             }
         }
     ],
-    workspaces: Array(10).map((_, i) => ({ id: i + 1 })),
     volumePopup: {
         height: 8,
         width: 300,
@@ -107,7 +106,6 @@ async function loadFileConfig(path: string) {
         }
 
         config.bars.set(configParsed.bars);
-        config.workspaces.set(configParsed.workspaces);
         config.volumePopup.set(configParsed.volumePopup);
 
     } catch (err) {
