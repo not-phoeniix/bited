@@ -2,7 +2,7 @@ import app from "ags/gtk4/app";
 import { Astal, Gdk, Gtk } from "ags/gtk4"
 import config from "./config";
 import { getWidgetByName } from "./bar_widgets";
-import { BarDesc, Location, WidgetDesc } from "./types";
+import { BarDesc, Location } from "./types";
 import { isVertical } from "./utils";
 
 function locToAnchor(loc: Location) {
@@ -23,27 +23,21 @@ export default function bar(barConfig: BarDesc, monitor: Gdk.Monitor) {
         ? Gtk.Orientation.VERTICAL
         : Gtk.Orientation.HORIZONTAL;
 
-    const mapWidgets = (widgets: (string | WidgetDesc)[], alignment: "start" | "center" | "end") => widgets
-        .map(nameOrDesc => {
-            let name: string;
-            let desc: WidgetDesc;
-
-            if (typeof nameOrDesc === "string") {
-                name = nameOrDesc;
-                desc = { name };
-            } else {
-                name = nameOrDesc.name;
-                desc = { ...nameOrDesc };
+    const mapWidgets = (widgets: string[], alignment: "start" | "center" | "end") => widgets
+        .map(widgetName => {
+            let widgetConfig: any = undefined;
+            if (barConfig.widgetConfig) {
+                widgetConfig = barConfig.widgetConfig[widgetName];
             }
 
-            const widgetFunc = getWidgetByName(name);
+            const widgetFunc = getWidgetByName(widgetName);
             if (!widgetFunc) {
-                console.warn(`WARNING: widget name "${name}" not recognized!`);
+                console.warn(`WARNING: widget name "${widgetName}" not recognized!`);
             }
-            return { widgetFunc, desc };
+            return { widgetFunc, widgetConfig };
         })
         .filter(v => v.widgetFunc !== null)
-        .map(({ widgetFunc, desc }) => widgetFunc!({ orientation, alignment, desc }));
+        .map(({ widgetFunc, widgetConfig }) => widgetFunc!({ orientation, alignment, widgetConfig }));
 
     return (
         <window

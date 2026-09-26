@@ -8,7 +8,7 @@ import config from "./config";
 import { batteryIcon, bluetoothIcon, networkIcon, volumeIcon } from "./icons";
 import quickMenu from "./quick_menu";
 import { createTimePoll, padNumberStr } from "./utils";
-import { isTypedArray, isWorkspaceDesc, isWorkspacesNiriDesc, WidgetDesc, WorkspaceDesc, WorkspacesNiriDesc } from "./types";
+import { isTypedArray, isWorkspaceDesc, isWorkspacesNiriConfig, WorkspaceDesc, WorkspacesNiriConfig } from "./types";
 import GObject from "gnim/gobject";
 import KWM from "./kwm";
 import Niri, { NiriWorkspace } from "./niri";
@@ -16,33 +16,33 @@ import Niri, { NiriWorkspace } from "./niri";
 interface WidgetProps {
     orientation: Gtk.Orientation;
     alignment: "start" | "center" | "end";
-    desc: WidgetDesc;
+    widgetConfig: any;
 };
 
 // example on how the hell to do this found at:
 //   https://github.com/Aylur/ags/blob/main/examples/gtk4/simple-bar/Bar.tsx
-function trayIcon(item: AstalTray.TrayItem) {
-    return (
-        <menubutton
-            tooltipMarkup={item.tooltipMarkup}
-            class="bar-icon"
-            menuModel={item.menuModel}
-            visible={!!item.id /* empty IDs won't show */}
-            $={(self) => {
-                self.insert_action_group("dbusmenu", item.actionGroup);
-                item.connect("notify::action-group", () => {
-                    self.insert_action_group("dbusmenu", item.actionGroup);
-                });
-            }}
-        >
-            <image pixelSize={20} gicon={createBinding(item, "gicon")} />
-        </menubutton>
-    );
-}
-
 export function tray(props: WidgetProps) {
     const tray = AstalTray.get_default();
     const trayItems = createBinding(tray, "items");
+
+    function trayIcon(item: AstalTray.TrayItem) {
+        return (
+            <menubutton
+                tooltipMarkup={item.tooltipMarkup}
+                class="bar-icon"
+                menuModel={item.menuModel}
+                visible={!!item.id /* empty IDs won't show */}
+                $={(self) => {
+                    self.insert_action_group("dbusmenu", item.actionGroup);
+                    item.connect("notify::action-group", () => {
+                        self.insert_action_group("dbusmenu", item.actionGroup);
+                    });
+                }}
+            >
+                <image pixelSize={20} gicon={createBinding(item, "gicon")} />
+            </menubutton>
+        );
+    }
 
     return (
         <box
@@ -159,7 +159,7 @@ function workspacesGeneric(
         );
     }
 
-    const workspaces = props.desc.workspaces;
+    const workspaces = props.widgetConfig?.workspaces;
     if (!isTypedArray<WorkspaceDesc>(workspaces, isWorkspaceDesc)) {
         console.warn("error in parsing workspace descriptions!");
         return (<box></box>);
@@ -233,10 +233,12 @@ export function workspacesHyprland(props: WidgetProps) {
 }
 
 export function workspacesNiri(props: WidgetProps) {
-    const { desc } = props;
-    if (!isWorkspacesNiriDesc(desc)) {
+    let { widgetConfig } = props;
+    if (!isWorkspacesNiriConfig(widgetConfig)) {
         console.warn("improper formatting for workspacesNiri properties!");
-        return (<box></box>);
+        widgetConfig = {
+            namedWorkspaces: []
+        } as WorkspacesNiriConfig;
     }
 
     // niri state
@@ -248,7 +250,7 @@ export function workspacesNiri(props: WidgetProps) {
     const activeWorkspace = createBinding(niri, "activeWorkspace");
 
     function workspaceIcon(ws: NiriWorkspace) {
-        let icon = (desc as WorkspacesNiriDesc).namedWorkspaces
+        let icon = (widgetConfig as WorkspacesNiriConfig).namedWorkspaces
             .find(namedWs => namedWs.name === ws.name)?.icon;
 
         if (!icon) {
