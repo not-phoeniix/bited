@@ -9,6 +9,7 @@ import paths, { makePath } from "./paths";
 import { createBinding, createEffect } from "gnim";
 import { Gtk } from "ags/gtk4";
 import GObject from "gnim/gobject";
+import notifications from "./notifications";
 
 function run() {
     monitorConfigFile(makePath(`${paths.APP_CONFIG_DIR}/config.json`));
@@ -47,6 +48,7 @@ function run() {
                 currentWindows.push(
                     volumePopup(monitor),
                     launcher(monitor),
+                    notifications(monitor),
                 );
             }
         });

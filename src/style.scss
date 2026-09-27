@@ -25,8 +25,8 @@ $panel_border: none;
 $font-family: Papernotes, Symbols Nerd Font;
 $font-size: 26px;
 
-$panel-padding: 0.2em;
-$widget-padding: 0.2em;
+$panel_padding: 0.2em;
+$widget_padding: 0.2em;
 $workspace_icon_padding: 0.2em;
 $button_padding: 3px 8px;
 $small_item_padding: 0px 4px;
@@ -329,6 +329,7 @@ entry {
     padding: $widget_padding;
     border-radius: $border_radius_widget;
     box-shadow: 0px 0px 6px $color_shadow;
+    border: $panel_border;
 }
 
 .notif-title {
@@ -348,6 +349,11 @@ entry {
 
 .notif-action-button * {
     font-size: 0.7em;
+}
+
+.notif-image {
+    border-radius: $border_radius_widget;
+    margin-right: $panel_padding;
 }
 
 // #endregion

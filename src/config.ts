@@ -20,7 +20,12 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
         width: 300,
         location: "RIGHT",
         timeout: 3000,
-    }
+    },
+    notifPopups: {
+        maxVisibleNotifs: 5,
+        imageSize: 64,
+        width: 300,
+    },
 });
 
 const config: StateObject<AppConfig> = stateObjectMap(DEFAULT_CONFIG);
@@ -28,6 +33,7 @@ const config: StateObject<AppConfig> = stateObjectMap(DEFAULT_CONFIG);
 const spacing = Object.seal({
     labelSpacing: 5,
     widgetSpacing: 10,
+    notifSpacing: 10,
 });
 
 const batteryIcons = Object.seal({
@@ -107,6 +113,7 @@ async function loadFileConfig(path: string) {
 
         config.bars.set(configParsed.bars);
         config.volumePopup.set(configParsed.volumePopup);
+        config.notifPopups.set(configParsed.notifPopups);
 
     } catch (err) {
         console.error(`CONFIG PARSE ERR: ${err}`);
