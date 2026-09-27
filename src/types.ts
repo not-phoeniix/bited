@@ -66,9 +66,16 @@ export interface VolumePopupDesc {
     location: Location
 };
 
+export interface NotifPopupDesc {
+    maxVisibleNotifs: number;
+    width: number;
+    imageSize: number;
+};
+
 export interface AppConfig {
     bars: BarDesc[];
     volumePopup: VolumePopupDesc;
+    notifPopups: NotifPopupDesc;
 };
 
 export type ArgumentFunc = (value?: string) => string;
@@ -109,21 +116,27 @@ export function isWorkspaceDesc(arg: any): arg is WorkspaceDesc {
 }
 
 export function isTagsKWMConfig(arg: any): arg is TagsKWMConfig {
-    return typeof arg === "object" &&
-        isTypedArray(arg.workspaces, isWorkspaceDesc);
+    return (
+        typeof arg === "object" &&
+        isTypedArray(arg.workspaces, isWorkspaceDesc)
+    );
 }
 
 export function isWorkspacesHyprlandConfig(arg: any): arg is WorkspacesHyprlandConfig {
-    return typeof arg === "object" &&
-        isTypedArray(arg.workspaces, isWorkspaceDesc);
+    return (
+        typeof arg === "object" &&
+        isTypedArray(arg.workspaces, isWorkspaceDesc)
+    );
 }
 
 export function isWorkspacesNiriConfig(arg: any): arg is WorkspacesNiriConfig {
-    return typeof arg === "object" &&
+    return (
+        typeof arg === "object" &&
         isTypedArray(arg.namedWorkspaces, (v) => {
             return typeof v.name === "string" &&
                 typeof v.icon === "string";
-        });
+        })
+    );
 }
 
 export function isBarDesc(arg: any): arg is BarDesc {
@@ -132,26 +145,46 @@ export function isBarDesc(arg: any): arg is BarDesc {
     const isBarDescWidgetsArg = (arg: any) => typeof arg === "undefined" || isStringArray(arg);
 
     function isBarDescWidgets(arg: any) {
-        return isBarDescWidgetsArg(arg.start) &&
+        return (
+            isBarDescWidgetsArg(arg.start) &&
             isBarDescWidgetsArg(arg.center) &&
-            isBarDescWidgetsArg(arg.end);
+            isBarDescWidgetsArg(arg.end)
+        );
     }
 
-    return typeof arg.size === "number" &&
+    return (
+        typeof arg === "object" &&
+        typeof arg.size === "number" &&
         isLocation(arg.location) &&
         (typeof arg.monitorIdx === "number" || isNumArray(arg.monitorIdx)) &&
         isBarDescWidgets(arg.widgets) &&
-        (typeof arg.widgetConfig === "undefined" || typeof arg.widgetConfig === "object");
+        (typeof arg.widgetConfig === "undefined" || typeof arg.widgetConfig === "object")
+    );
 }
 
 export function isVolumePopupDesc(arg: any): arg is VolumePopupDesc {
-    return typeof arg.height === "number" &&
+    return (
+        typeof arg === "object" &&
+        typeof arg.height === "number" &&
         typeof arg.width === "number" &&
         typeof arg.timeout === "number" &&
-        isLocation(arg.location);
+        isLocation(arg.location)
+    );
+}
+
+export function isNotifPopupDesc(arg: any): arg is NotifPopupDesc {
+    return (
+        typeof arg === "object" &&
+        typeof arg.maxVisibleNotifs === "number" &&
+        typeof arg.width === "number" &&
+        typeof arg.imageSize === "number"
+    );
 }
 
 export function isAppConfig(arg: any): arg is AppConfig {
-    return isTypedArray<BarDesc>(arg.bars, isBarDesc) &&
-        isVolumePopupDesc(arg.volumePopup);
+    return (
+        isTypedArray<BarDesc>(arg.bars, isBarDesc) &&
+        isVolumePopupDesc(arg.volumePopup) &&
+        isNotifPopupDesc(arg.notifPopups)
+    );
 }
