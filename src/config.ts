@@ -25,7 +25,7 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
         maxVisibleNotifs: 5,
         imageSize: 64,
         width: 300,
-        timeoutMs: 3000,
+        timeout: 5000,
     },
 });
 

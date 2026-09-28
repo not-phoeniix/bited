@@ -234,12 +234,13 @@ export function workspacesHyprland(props: WidgetProps) {
 
 export function workspacesNiri(props: WidgetProps) {
     let { widgetConfig } = props;
-    if (!isWorkspacesNiriConfig(widgetConfig)) {
+
+    if (widgetConfig && !isWorkspacesNiriConfig(widgetConfig)) {
         console.warn("improper formatting for workspacesNiri properties!");
-        widgetConfig = {
-            namedWorkspaces: []
-        } as WorkspacesNiriConfig;
     }
+
+    widgetConfig ??= {};
+    widgetConfig.namedWorkspaces ??= [];
 
     // niri state
     const niri = Niri.get_default();
