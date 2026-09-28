@@ -1,9 +1,10 @@
 import { Astal, Gdk, Gtk } from "ags/gtk4";
 import app from "ags/gtk4/app";
 import AstalNotifd from "gi://AstalNotifd";
-import { createBinding, createState, For } from "gnim";
+import { createBinding, createComputed, createState, For } from "gnim";
 import config from "./config";
 import Pango from "gi://Pango";
+import GLib from "gi://GLib";
 
 function notifAction(action: AstalNotifd.Action, closeNotif: () => void) {
     return (
@@ -20,8 +21,18 @@ function notifAction(action: AstalNotifd.Action, closeNotif: () => void) {
 
 function notification(notif: AstalNotifd.Notification, closeNotif: () => void) {
     const { VERTICAL, HORIZONTAL } = Gtk.Orientation;
+    const { timeoutMs } = config.notifPopups.value();
 
     const actions = createBinding(notif, "actions");
+    const actionsComputed = createComputed(() => {
+        const a = actions();
+        if (a.length > 1) {
+            return a;
+        }
+
+        return [];
+    });
+    let timeout: GLib.Source | undefined = setTimeout(closeNotif, timeoutMs);
 
     return (
         <box
@@ -29,6 +40,32 @@ function notification(notif: AstalNotifd.Notification, closeNotif: () => void) {
             orientation={HORIZONTAL}
             widthRequest={config.notifPopups.value.as(v => v.width)}
         >
+            <Gtk.EventControllerLegacy onEvent={(_, event) => {
+                const isButtonPress = event.get_event_type() === Gdk.EventType.BUTTON_PRESS;
+                if (isButtonPress && event instanceof Gdk.ButtonEvent) {
+                    if (event.get_button() === Gdk.BUTTON_PRIMARY) {
+                        actions()[0]?.invoke();
+                        closeNotif();
+                    } else if (event.get_button() === Gdk.BUTTON_SECONDARY) {
+                        closeNotif();
+                    }
+                }
+            }} />
+
+            <Gtk.EventControllerMotion onNotifyContainsPointer={(self) => {
+                if (self.contains_pointer && timeout) {
+                    clearTimeout(timeout);
+                    timeout = undefined;
+                }
+
+                if (!self.contains_pointer) {
+                    if (timeout) {
+                        clearTimeout(timeout);
+                    }
+                    timeout = setTimeout(closeNotif, timeoutMs);
+                }
+            }} />
+
             <box>
                 <image
                     file={notif.image}
@@ -72,7 +109,7 @@ function notification(notif: AstalNotifd.Notification, closeNotif: () => void) {
                 />
 
                 <box orientation={HORIZONTAL} homogeneous={true}>
-                    <For each={actions}>
+                    <For each={actionsComputed}>
                         {(a) => notifAction(a, closeNotif)}
                     </For>
                 </box>

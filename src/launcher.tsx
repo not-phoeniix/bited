@@ -36,7 +36,7 @@ function innerWidgets(window: Gtk.Window) {
             $={(self) => window.connect("show", () => self.text = "")}
             hexpand={true}
             class="search-bar"
-            css="padding: 0; border-radius: 0;"
+            placeholderText="search..."
             onActivate={() => {
                 window.hide();
                 appQuery()[0]?.launch();
