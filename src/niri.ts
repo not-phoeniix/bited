@@ -1,6 +1,5 @@
-import GObject, { register, getter, setter } from "ags/gobject";
-import { readFileAsync } from "ags/file";
-import { exec, execAsync, subprocess } from "ags/process";
+import GObject, { register, getter } from "ags/gobject";
+import { exec, subprocess } from "ags/process";
 
 type NiriPos = [number, number];
 
@@ -121,7 +120,9 @@ export default class Niri extends GObject.Object {
 
         if (event.WorkspacesChanged) {
             this.#workspaces = event.WorkspacesChanged.workspaces;
+            this.#activeWorkspace = this.#workspaces.find(w => w.is_active)!;
             this.notify("workspaces");
+            this.notify("active_workspace");
         }
 
         if (event.WindowOpenedOrChanged) {
