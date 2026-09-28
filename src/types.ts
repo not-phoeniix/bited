@@ -70,7 +70,7 @@ export interface NotifPopupDesc {
     maxVisibleNotifs: number;
     width: number;
     imageSize: number;
-    timeoutMs: number;
+    timeout: number;
 };
 
 export interface AppConfig {
@@ -179,7 +179,7 @@ export function isNotifPopupDesc(arg: any): arg is NotifPopupDesc {
         typeof arg.maxVisibleNotifs === "number" &&
         typeof arg.width === "number" &&
         typeof arg.imageSize === "number" &&
-        typeof arg.timeoutMs === "number"
+        typeof arg.timeout === "number"
     );
 }
 
