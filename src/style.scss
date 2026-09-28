@@ -330,6 +330,10 @@ entry {
     border-radius: $border_radius_widget;
     box-shadow: 0px 0px 6px $color_shadow;
     border: $panel_border;
+
+    &:hover {
+        background-color: $color_bg_2;
+    }
 }
 
 .notif-title {
@@ -360,10 +364,7 @@ entry {
 // #region app launcher
 .search-bar {
     padding: $panel_padding;
-
-    & .thin-separator-horiz {
-        padding: $panel_padding;
-    }
+    border-radius: $border_radius_widget;
 }
 
 // #endregion
