@@ -17,6 +17,7 @@ function locToAnchor(loc: Location) {
 
 export default function bar(barConfig: BarDesc, monitor: Gdk.Monitor) {
     const { size, location, widgets } = barConfig;
+    const monitorConnector = monitor.get_connector()!;
 
     const anchor = locToAnchor(location);
     const orientation = isVertical(anchor)
@@ -37,7 +38,12 @@ export default function bar(barConfig: BarDesc, monitor: Gdk.Monitor) {
             return { widgetFunc, widgetConfig };
         })
         .filter(v => v.widgetFunc !== null)
-        .map(({ widgetFunc, widgetConfig }) => widgetFunc!({ orientation, alignment, widgetConfig }));
+        .map(({ widgetFunc, widgetConfig }) => widgetFunc!({
+            orientation,
+            alignment,
+            widgetConfig,
+            monitorConnector
+        }));
 
     return (
         <window
