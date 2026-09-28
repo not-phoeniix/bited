@@ -1,9 +1,11 @@
+import app from "ags/gtk4/app";
 import { readFileAsync } from "ags/file";
 import { AppConfig, isAppConfig } from "./types";
 import { StateObject } from "./types";
 import { stateObjectMap, monitorFile } from "./utils";
 
 const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
+    primaryOutput: app.get_monitors()[0].get_connector()!,
     bars: [
         {
             size: 30,
@@ -111,6 +113,7 @@ async function loadFileConfig(path: string) {
             return;
         }
 
+        config.primaryOutput.set(configParsed.primaryOutput);
         config.bars.set(configParsed.bars);
         config.volumePopup.set(configParsed.volumePopup);
         config.notifPopups.set(configParsed.notifPopups);

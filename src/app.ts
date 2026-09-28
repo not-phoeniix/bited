@@ -28,8 +28,7 @@ function run() {
         currentWindows.splice(0);
         deregisterAllPanels();
 
-        let primaryOutput = config.primaryOutput?.value();
-        primaryOutput ??= monitors()[0].get_connector()!;
+        const primaryOutput = config.primaryOutput.value();
 
         // create new windows on each monitor change
         monitors().forEach((monitor) => {

@@ -80,7 +80,7 @@ export interface NotifPopupDesc {
 };
 
 export interface AppConfig {
-    primaryOutput?: string;
+    primaryOutput: string;
     bars: BarDesc[];
     volumePopup: VolumePopupDesc;
     notifPopups: NotifPopupDesc;
@@ -201,7 +201,7 @@ export function isNotifPopupDesc(arg: any): arg is NotifPopupDesc {
 export function isAppConfig(arg: any): arg is AppConfig {
     return (
         typeof arg === "object" &&
-        (typeof arg.primaryOutput === "undefined" || typeof arg.primaryOutput === "string") &&
+        typeof arg.primaryOutput === "string" &&
         isTypedArray<BarDesc>(arg.bars, isBarDesc) &&
         isVolumePopupDesc(arg.volumePopup) &&
         isNotifPopupDesc(arg.notifPopups)
