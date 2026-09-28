@@ -15,6 +15,7 @@ export type Location = "LEFT" | "RIGHT" | "TOP" | "BOTTOM";
 
 export interface Time {
     hour: number;
+    hour12: number;
     minute: number;
     second: number;
     year: number;
@@ -45,10 +46,15 @@ export interface WorkspacesNiriConfig {
     }[];
 };
 
+export interface TimeCalConfig {
+    use24h: boolean;
+}
+
 export interface BarDesc {
     size: number;
     location: Location;
-    monitorIdx: number | number[];
+    output?: string;
+    outputs?: string[];
     widgets: {
         start?: string[];
         center?: string[];
@@ -74,6 +80,7 @@ export interface NotifPopupDesc {
 };
 
 export interface AppConfig {
+    primaryOutput?: string;
     bars: BarDesc[];
     volumePopup: VolumePopupDesc;
     notifPopups: NotifPopupDesc;
@@ -109,6 +116,7 @@ export function isTypedArray<T>(arg: any, predicate: (v: any) => boolean): arg i
 
 export function isWorkspaceDesc(arg: any): arg is WorkspaceDesc {
     return (
+        typeof arg === "object" &&
         typeof arg.id === "number" &&
         (typeof arg.icon === "undefined" || typeof arg.icon === "string") &&
         (typeof arg.special === "undefined" || typeof arg.special === "boolean") &&
@@ -140,9 +148,15 @@ export function isWorkspacesNiriConfig(arg: any): arg is WorkspacesNiriConfig {
     );
 }
 
+export function isTimeCalConfig(arg: any): arg is TimeCalConfig {
+    return (
+        typeof arg === "object" &&
+        typeof arg.use24h === "boolean"
+    );
+}
+
 export function isBarDesc(arg: any): arg is BarDesc {
     const isStringArray = (arg: any) => isTypedArray<string>(arg, (v) => typeof v === "string");
-    const isNumArray = (arg: any) => isTypedArray<number>(arg, (v) => typeof v === "number");
     const isBarDescWidgetsArg = (arg: any) => typeof arg === "undefined" || isStringArray(arg);
 
     function isBarDescWidgets(arg: any) {
@@ -157,7 +171,8 @@ export function isBarDesc(arg: any): arg is BarDesc {
         typeof arg === "object" &&
         typeof arg.size === "number" &&
         isLocation(arg.location) &&
-        (typeof arg.monitorIdx === "number" || isNumArray(arg.monitorIdx)) &&
+        (typeof arg.output === "undefined" || typeof arg.output === "string") &&
+        (typeof arg.outputs === "undefined" || isStringArray(arg.outputs)) &&
         isBarDescWidgets(arg.widgets) &&
         (typeof arg.widgetConfig === "undefined" || typeof arg.widgetConfig === "object")
     );
@@ -185,6 +200,8 @@ export function isNotifPopupDesc(arg: any): arg is NotifPopupDesc {
 
 export function isAppConfig(arg: any): arg is AppConfig {
     return (
+        typeof arg === "object" &&
+        (typeof arg.primaryOutput === "undefined" || typeof arg.primaryOutput === "string") &&
         isTypedArray<BarDesc>(arg.bars, isBarDesc) &&
         isVolumePopupDesc(arg.volumePopup) &&
         isNotifPopupDesc(arg.notifPopups)

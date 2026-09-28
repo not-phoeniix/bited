@@ -8,7 +8,7 @@ import config from "./config";
 import { batteryIcon, bluetoothIcon, networkIcon, volumeIcon } from "./icons";
 import quickMenu from "./quick_menu";
 import { createTimePoll, padNumberStr } from "./utils";
-import { isTypedArray, isWorkspaceDesc, isWorkspacesNiriConfig, WorkspaceDesc, WorkspacesNiriConfig } from "./types";
+import { isTimeCalConfig, isTypedArray, isWorkspaceDesc, isWorkspacesNiriConfig, WorkspaceDesc, WorkspacesNiriConfig } from "./types";
 import GObject from "gnim/gobject";
 import KWM from "./kwm";
 import Niri, { NiriWorkspace } from "./niri";
@@ -17,6 +17,7 @@ interface WidgetProps {
     orientation: Gtk.Orientation;
     alignment: "start" | "center" | "end";
     widgetConfig: any;
+    monitorConnector: string;
 };
 
 // example on how the hell to do this found at:
@@ -82,13 +83,22 @@ export function statusIcons(props: WidgetProps) {
 }
 
 export function timeCal(props: WidgetProps) {
+    let { widgetConfig } = props;
+
+    if (widgetConfig && !isTimeCalConfig(widgetConfig)) {
+        console.warn("improper formatting for timeCal config!");
+    }
+
+    widgetConfig ??= {};
+    widgetConfig.use24h ??= false;
+
     const time = createTimePoll();
     const [calendarDate, setCalendarDate] = createState(GLib.DateTime.new_now_local());
 
     return (
         <menubutton class="widget">
             <box spacing={config.spacing.labelSpacing} orientation={props.orientation}>
-                <label label={time.as(t => padNumberStr(t.hour))} />
+                <label label={time.as(t => padNumberStr(widgetConfig.use24h ? t.hour : t.hour12))} />
                 <label label={time.as(t => padNumberStr(t.minute))} class="accent" />
             </box>
             <popover
@@ -236,7 +246,7 @@ export function workspacesNiri(props: WidgetProps) {
     let { widgetConfig } = props;
 
     if (widgetConfig && !isWorkspacesNiriConfig(widgetConfig)) {
-        console.warn("improper formatting for workspacesNiri properties!");
+        console.warn("improper formatting for workspacesNiri config!");
     }
 
     widgetConfig ??= {};
@@ -282,7 +292,10 @@ export function workspacesNiri(props: WidgetProps) {
             orientation={props.orientation}
         >
             <box class="widget" orientation={props.orientation}>
-                <For each={workspaces.as(w => reversed ? w.reverse() : w)}>
+                <For each={workspaces
+                    .as(wss => reversed ? wss.reverse() : wss)
+                    .as(wss => wss.filter(w => w.output === props.monitorConnector))
+                }>
                     {workspaceIcon}
                 </For>
             </box>

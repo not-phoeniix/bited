@@ -2,11 +2,12 @@ import { execAsync } from "ags/process";
 import { createPoll } from "ags/time";
 import { StateObject, Time } from "./types";
 import { createState } from "gnim";
-import { Astal } from "ags/gtk4";
+import { Astal, Gdk } from "ags/gtk4";
 import Gio from "gi://Gio";
 
 const DEFAULT_TIME: Time = Object.seal({
     hour: 0,
+    hour12: 12,
     minute: 0,
     second: 0,
     // was that the bite of 87
@@ -32,11 +33,12 @@ export function stateObjectMap<T>(obj: T): StateObject<T> {
 
 export function createTimePoll(interval: number = 1000) {
     return createPoll<Time>(DEFAULT_TIME, interval, async () => {
-        const [hourStr, minStr, secStr, yearStr, monthStr, dayStr] =
-            (await execAsync("date +%H,%M,%S,%Y,%m,%d")).split(",");
+        const [hourStr, hour12Str, minStr, secStr, yearStr, monthStr, dayStr] =
+            (await execAsync("date +%H,%I,%M,%S,%Y,%m,%d")).split(",");
 
         return {
             hour: Number(hourStr),
+            hour12: Number(hour12Str),
             minute: Number(minStr),
             second: Number(secStr),
             year: Number(yearStr),

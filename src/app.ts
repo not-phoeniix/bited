@@ -28,23 +28,31 @@ function run() {
         currentWindows.splice(0);
         deregisterAllPanels();
 
+        let primaryOutput = config.primaryOutput?.value();
+        primaryOutput ??= monitors()[0].get_connector()!;
+
         // create new windows on each monitor change
-        monitors().forEach((monitor, i) => {
+        monitors().forEach((monitor) => {
+            const monCon = monitor.get_connector() ?? " ???  ?   ??  unknown ? ??? ";
+
             config.bars.value().forEach(b => {
-                const indices = Array.isArray(b.monitorIdx)
-                    ? b.monitorIdx
-                    : [b.monitorIdx];
+                const someOutputMatches =
+                    monCon === b.output ||
+                    (b.outputs?.find(o => o === monCon) !== undefined);
 
-                const hasThisIndex = indices.findIndex((v) => v === i) !== -1;
-                const hasAllIndices = indices.findIndex((v) => v === -1) !== -1;
+                const matchesDefault =
+                    b.output === undefined &&
+                    b.outputs === undefined &&
+                    monCon === primaryOutput;
 
-                if (hasThisIndex || hasAllIndices) {
+                // mutually exclusive
+                if (someOutputMatches || matchesDefault) {
                     currentWindows.push(bar(b, monitor));
                 }
             })
 
             // only apply popup and launcher to primary monitor
-            if (i === 0) {
+            if (monCon === primaryOutput) {
                 currentWindows.push(
                     volumePopup(monitor),
                     launcher(monitor),

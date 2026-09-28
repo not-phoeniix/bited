@@ -8,7 +8,6 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
         {
             size: 30,
             location: "TOP",
-            monitorIdx: -1,
             widgets: {
                 start: ["timeCal"],
                 end: ["tray", "statusIcons"],
