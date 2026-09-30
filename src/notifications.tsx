@@ -21,7 +21,7 @@ function notifAction(action: AstalNotifd.Action, closeNotif: () => void) {
 
 function notification(notif: AstalNotifd.Notification, closeNotif: () => void) {
     const { VERTICAL, HORIZONTAL } = Gtk.Orientation;
-    const { timeoutMs } = config.notifPopups.value();
+    const { timeout } = config.notifPopups.value();
 
     const actions = createBinding(notif, "actions");
     const actionsComputed = createComputed(() => {
@@ -32,7 +32,7 @@ function notification(notif: AstalNotifd.Notification, closeNotif: () => void) {
 
         return [];
     });
-    let timeout: GLib.Source | undefined = setTimeout(closeNotif, timeoutMs);
+    let timeoutObj: GLib.Source | undefined = setTimeout(closeNotif, timeout);
 
     return (
         <box
@@ -53,16 +53,16 @@ function notification(notif: AstalNotifd.Notification, closeNotif: () => void) {
             }} />
 
             <Gtk.EventControllerMotion onNotifyContainsPointer={(self) => {
-                if (self.contains_pointer && timeout) {
-                    clearTimeout(timeout);
-                    timeout = undefined;
+                if (self.contains_pointer && timeoutObj) {
+                    clearTimeout(timeoutObj);
+                    timeoutObj = undefined;
                 }
 
                 if (!self.contains_pointer) {
-                    if (timeout) {
-                        clearTimeout(timeout);
+                    if (timeoutObj) {
+                        clearTimeout(timeoutObj);
                     }
-                    timeout = setTimeout(closeNotif, timeoutMs);
+                    timeoutObj = setTimeout(closeNotif, timeout);
                 }
             }} />
 
