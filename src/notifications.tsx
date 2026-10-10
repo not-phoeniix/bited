@@ -5,14 +5,31 @@ import { createBinding, createComputed, createState, For } from "gnim";
 import config from "./config";
 import Pango from "gi://Pango";
 import GLib from "gi://GLib";
+import Niri from "./niri";
 
-function notifAction(action: AstalNotifd.Action, closeNotif: () => void) {
+function focusNotifApp(notif: AstalNotifd.Notification) {
+    const niri = Niri.get_default();
+    if (niri) {
+        niri.windows.forEach(window => {
+            if (window.app_id === notif.appName) {
+                niri.action(`focus-window --id ${window.id}`);
+            }
+        });
+    }
+}
+
+function notifAction(
+    action: AstalNotifd.Action,
+    notif: AstalNotifd.Notification,
+    closeNotif: () => void
+) {
     return (
         <button
             class="notif-action-button"
             label={action.label}
             onClicked={() => {
                 action.invoke();
+                focusNotifApp(notif)
                 closeNotif();
             }}
         />
@@ -45,6 +62,7 @@ function notification(notif: AstalNotifd.Notification, closeNotif: () => void) {
                 if (isButtonPress && event instanceof Gdk.ButtonEvent) {
                     if (event.get_button() === Gdk.BUTTON_PRIMARY) {
                         actions()[0]?.invoke();
+                        focusNotifApp(notif);
                         closeNotif();
                     } else if (event.get_button() === Gdk.BUTTON_SECONDARY) {
                         closeNotif();
@@ -110,7 +128,7 @@ function notification(notif: AstalNotifd.Notification, closeNotif: () => void) {
 
                 <box orientation={HORIZONTAL} homogeneous={true}>
                     <For each={actionsComputed}>
-                        {(a) => notifAction(a, closeNotif)}
+                        {(a) => notifAction(a, notif, closeNotif)}
                     </For>
                 </box>
             </box>

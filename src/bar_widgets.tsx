@@ -279,7 +279,7 @@ export function workspacesNiri(props: WidgetProps) {
             <button
                 label={icon}
                 class={isActive.as(a => `workspace ${a ? "focused" : ""}`)}
-                onClicked={() => niri.action(`focus-workspace ${ws.idx}`)}
+                onClicked={() => niri!.action(`focus-workspace ${ws.idx}`)}
             />
         );
     }
