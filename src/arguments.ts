@@ -1,5 +1,6 @@
 import { Argument, ArgumentFunc } from "./types";
 import { Gtk } from "ags/gtk4";
+import { clearDisplayedNotifs } from "./notifications";
 
 export const ARGS: Record<string, ArgumentFunc> = Object.seal({
     "help": printHelp,
@@ -11,6 +12,8 @@ export const ARGS: Record<string, ArgumentFunc> = Object.seal({
     "toggle": togglePanel,
     "--toggle-panel": togglePanel,
     "-t": togglePanel,
+    "--clear-notifs": clearDisplayedNotifsAlias,
+    "clear-notifs": clearDisplayedNotifsAlias,
 });
 
 let popovers: Record<string, Gtk.Popover[]> = {};
@@ -83,6 +86,11 @@ function togglePanel(panelName?: string) {
     }
 
     return `panel "${panelName}" toggled!`;
+}
+
+function clearDisplayedNotifsAlias() {
+    clearDisplayedNotifs();
+    return "notifs cleared!";
 }
 
 export function parseArgs(argv: string[]): Argument[] {

@@ -7,6 +7,8 @@ import Pango from "gi://Pango";
 import GLib from "gi://GLib";
 import Niri from "./niri";
 
+const notifClearFuncs: (() => void)[] = [];
+
 function focusNotifApp(notif: AstalNotifd.Notification) {
     const niri = Niri.get_default();
     if (niri) {
@@ -136,6 +138,12 @@ function notification(notif: AstalNotifd.Notification, closeNotif: () => void) {
     );
 }
 
+export function clearDisplayedNotifs() {
+    for (let func of notifClearFuncs) {
+        func();
+    }
+}
+
 export default function notifications(monitor: Gdk.Monitor) {
     const notifd = AstalNotifd.get_default();
 
@@ -146,6 +154,10 @@ export default function notifications(monitor: Gdk.Monitor) {
 
     const [notifList, setNotifList] = createState<AstalNotifd.Notification[]>([]);
     const [visible, setVisible] = createState(false);
+    notifClearFuncs.push(() => {
+        setNotifList([]);
+        setVisible(false);
+    });
 
     notifd.connect("notified", (_, id) => {
         const n = notifd.get_notification(id);
