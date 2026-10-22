@@ -1,34 +1,67 @@
-import { Argument, ArgumentFunc } from "./types";
+import { Argument, ArgumentFunc, isStringRecord } from "./types";
 import { Gtk } from "ags/gtk4";
 import { clearDisplayedNotifs } from "./notifications";
+import { readFile } from "ags/file";
+import app from "ags/gtk4/app";
+import { processScss } from "./utils";
+import style from "./style.scss.txt";
 
 interface ArgDesc {
     shortFlag: string;
     longFlag?: string;
     func: ArgumentFunc;
+    helpMessage: {
+        desc: string;
+        parameter?: string;
+    };
 };
 
-const ARGS: Record<string, ArgDesc> = {
+const ARGS: Record<string, ArgDesc> = Object.seal({
     "help": {
         shortFlag: "h",
         func: printHelp,
+        helpMessage: {
+            desc: "prints this message",
+        },
     },
 
     "toggle": {
         shortFlag: "t",
         func: togglePanel,
+        helpMessage: {
+            desc: "toggles the visibility of a panel",
+            parameter: "[PANEL]",
+        },
     },
 
     "message": {
         shortFlag: "m",
         func: printMessage,
+        helpMessage: {
+            desc: "prints a message",
+            parameter: "[MESSAGE]",
+        },
     },
 
     "notifs": {
         shortFlag: "n",
         func: handleNotifs,
-    }
-};
+        helpMessage: {
+            desc: "interfaces with notif daemon",
+            parameter: "clear",
+        },
+    },
+
+    "themeFile": {
+        longFlag: "theme-file",
+        shortFlag: "T",
+        func: parseThemeFile,
+        helpMessage: {
+            desc: "loads custom CSS vars from a theme file",
+            parameter: "[FILE_PATH]",
+        },
+    },
+});
 
 const SHORT_FLAG_PREFIX = "-";
 const LONG_FLAG_PREFIX = "--";
@@ -47,59 +80,40 @@ const ARG_MAP: Record<string, ArgumentFunc> = Object.seal((() => {
     return retMap;
 })());
 
-// const ARGS: Record<string, ArgumentFunc> = Object.seal({
-//     // TODO: remove most of the flag arguments . -t doesnt make sense
-//     "help": printHelp,
-//     "--help": printHelp,
-//     "-h": printHelp,
-//     "message": printMessage,
-//     "--message": printMessage,
-//     "-m": printMessage,
-//     "toggle": togglePanel,
-//     "--toggle-panel": togglePanel,
-//     "-t": togglePanel,
-//     // TODO: refactor into "notifs" command, has subcommands
-//     //   bited notifs clear
-//     //   bited notifs restore 5
-//     //   bited notifs toggle-dnd
-//     //   etc.
-//     "--clear-notifs": clearDisplayedNotifsAlias,
-//     "clear-notifs": clearDisplayedNotifsAlias,
-// });
-
 let popovers: Record<string, Gtk.Popover[]> = {};
 let windows: Record<string, Gtk.Window[]> = {};
 
-const HELP_MESSAGE = (panelNames: string[]) => `
-Usage: bited [OPTION]
-A tiny custom GTK desktop environment
-
-Options: 
-  help, -h, --help
-    prints this message and exits
-
-  message, -m, --message [MESSAGE]
-    prints a specified message and exits
-
-  toggle, -t, --toggle-panel [PANEL]
-    toggles the visibility of one of the following panels:
-    [${panelNames.join(", ")}]
-
-Examples:
-  bited &\t\t\tlaunches bited asynchronously
-  bited toggle launcher\ttoggles the app launcher
-  bited -m hi\t\t"hi"
-`.trim();
 
 function printMessage(value?: string) {
     return value ?? "missing value!";
 }
 
 function printHelp() {
-    return HELP_MESSAGE([
-        ...Object.keys(popovers),
-        ...Object.keys(windows)
-    ]);
+    let argsStr = "";
+    for (const [key, value] of Object.entries(ARGS)) {
+        const { desc, parameter } = value.helpMessage;
+
+        argsStr += `  ${key}, --${value.longFlag || key}, -${value.shortFlag}`;
+        if (parameter) {
+            argsStr += ` ${parameter}`;
+        }
+        argsStr += "\n";
+
+        argsStr += `    ${desc}\n`;
+        argsStr += "\n";
+    }
+
+    return `
+Usage: bited [OPTION]
+A tiny custom GTK desktop environment
+
+Options: 
+${argsStr}
+Examples:
+  bited &              \tlaunches bited asynchronously
+  bited toggle launcher\ttoggles the app launcher
+  bited -m hi          \thi
+`.trim();
 }
 
 function togglePanel(panelName?: string) {
@@ -146,6 +160,27 @@ function handleNotifs(args?: string) {
     }
 
     return "notifs arg not recognized!";
+}
+
+function parseThemeFile(file?: string) {
+    if (!file) {
+        return "missing file path!";
+    }
+
+    try {
+        const fileContents = readFile(file);
+        const { cssVars } = JSON.parse(fileContents);
+
+        if (!cssVars || !isStringRecord<string>(cssVars)) {
+            return "theme file property \"cssVars\" missing or improperly formatted!";
+        }
+
+        app.apply_css(processScss(style, cssVars), true);
+        return `theme "${file}" set!`;
+
+    } catch (err) {
+        return "error when parsing theme file: " + err;
+    }
 }
 
 export function parseArgs(argv: string[]): Argument[] {
