@@ -1,4 +1,6 @@
-@import "../../../../.cache/wal/colors.scss";
+// style file !!!! 
+//   this is a .txt file so ts can just import & embed 
+//   it without auto compiling the SCSS
 
 // === variables ================================
 

@@ -1,9 +1,11 @@
-import { execAsync } from "ags/process";
+import { exec, execAsync } from "ags/process";
 import { createPoll } from "ags/time";
 import { StateObject, Time } from "./types";
 import { createState } from "gnim";
 import { Astal, Gdk } from "ags/gtk4";
 import Gio from "gi://Gio";
+import { readFile } from "ags/file";
+import paths, { makePath } from "./paths";
 
 const DEFAULT_TIME: Time = Object.seal({
     hour: 0,
@@ -103,4 +105,46 @@ export function hexToRgb(hex: string) {
         g: parseInt(result[2], 16),
         b: parseInt(result[3], 16)
     } : null;
+}
+
+
+export function processScss(fileContent: string, overrideVars: Record<string, string>): string {
+    const walScssVars = readFile(makePath(paths.XDG_CACHE_DIR, "wal", "colors.scss"));
+
+    let overrideVarsCombined = "";
+    for (let key in overrideVars) {
+        let value = overrideVars[key].trim();
+        if (value.match(/\$(color[0-9]+|background|foreground)/i)) {
+            value = `#{${value}}`;
+        }
+
+        overrideVarsCombined += `--${key}: ${value}; `;
+    }
+    overrideVarsCombined = overrideVarsCombined.replaceAll("\"", "\'");
+
+    let combinedScss = walScssVars + fileContent;
+
+    combinedScss = combinedScss.replace(
+        // replacing this str: "/* <INSERT_CSS_VARS_HERE> */"
+        /\/\*[ \t]*<INSERT_CSS_VARS_HERE>[ \t]*\*\//,
+        overrideVarsCombined ? `:root { ${overrideVarsCombined} }` : ""
+    );
+
+    // compile scss
+    let retStr = exec(`bash -c "sass --stdin <<'EOF'\n${combinedScss}\nEOF"`);
+
+    // replace all rgba hex codes w expanded rgb
+    // retStr = retStr.replaceAll(/rgba\(\#([a-f\d]){6}/gi, str => {
+    retStr = retStr.replaceAll(/rgba\(\#[a-f\d]{6}/gi, str => {
+        const hex = str.replace(/rgba\(/i, "");
+        const rgb = hexToRgb(hex);
+        if (rgb) {
+            const { r, g, b } = rgb;
+            return `rgba(${r}, ${g}, ${b}`;
+        }
+
+        return str;
+    });
+
+    return retStr;
 }
