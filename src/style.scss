@@ -2,73 +2,48 @@
 
 // === variables ================================
 
-// ~~~ ORIGINAL PRESET ~~~
+:root {
+    --color-bg: #{$background};
+    --color-bg-2: #{$color0};
+    --color-bg-highlight: rgba(#{$foreground}, 0.1);
+    --color-fg: #{$foreground};
+    --color-fg-2: #{$color8};
+    --color-fg-trans: rgba(#{$foreground}, 0.6);
+    --color-fg-moretrans: rgba(#{$foreground}, 0.3);
+    --color-accent: #{$color1};
+    --color-accent-2: #{$color9};
+    --color-alert: #{$color3};
+    --color-good: #{$color2};
+    --color-bad: #{$color1};
+    --color-shadow: rgba(0, 0, 0, 0.4);
 
-$color_bg: $background;
-$color_bg_2: $color0;
-$color_fg: $foreground;
-$color_fg_2: $color8;
-$color_accent: $color1;
-$color_accent_2: $color9;
-$color_alert: $color3;
-$color_good: $color2;
-$color_bad: $color1;
-$color_shadow: rgba(0, 0, 0, 0.4);
+    --border-radius-panel: 15px;
+    --border-radius-widget: 9px;
+    --border-radius-small: 4px;
+    --border-radius-volume-popup: 50px;
+    --border-widget: none;
+    --border-panel: none;
 
-$border_radius_panel: 15px;
-$border_radius_widget: 9px;
-$border_radius_small: 4px;
-$border_radius_volume_popup: 50px;
-$widget_border: none;
-$panel_border: none;
+    --font-family: Papernotes, Symbols Nerd Font;
+    --font-size: 26px;
 
-$font-family: Papernotes, Symbols Nerd Font;
-$font-size: 26px;
+    --padding-panel: 0.2em;
+    --padding-widget: 0.2em;
+    --padding-workspace-icon: 0.2em;
+    --padding-button: 3px 8px;
+    --padding-small-item: 0px 4px;
+}
 
-$panel_padding: 0.2em;
-$widget_padding: 0.2em;
-$workspace_icon_padding: 0.2em;
-$button_padding: 3px 8px;
-$small_item_padding: 0px 4px;
-
-// ~~~ RETRO PRESET ~~~
-
-// $color_bg: $background;
-// $color_bg_2: $color0;
-// $color_fg: $foreground;
-// $color_fg_2: $color8;
-// $color_accent: $color6;
-// $color_accent_2: $color4;
-// $color_alert: $color3;
-// $color_good: $color2;
-// $color_bad: $color1;
-// $color_shadow: transparent;
-
-// $border_radius_panel: 0px;
-// $border_radius_widget: 0px;
-// $border_radius_small: 0px;
-// $border_radius_volume_popup: 0px;
-// $widget_border: 3px inset $color_fg_2;
-// $panel_border: 2px groove $color7;
-
-// // $font_family: "W95FA", Symbols Nerd Font;
-// $font_family: "Serif Bold", Symbols Nerd Font;
-// $font_size: 24px;
-
-// $panel_padding: 3px;
-// $widget_padding: 0px 5px;
-// $workspace_icon_padding: 0 0.3em;
-// $button_padding: 2px;
-// $small_item_padding: 0px;
+/* <INSERT_CSS_VARS_HERE> */
 
 // === style code ===============================
 
 * {
     // apparently this is bad to do lol
     // all: unset;
-    font-family: $font_family;
-    font-size: $font_size;
-    color: $color_fg;
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    color: var(--color-fg);
     transition: unset;
 }
 
@@ -91,116 +66,116 @@ menubutton {
         padding: 0;
 
         &>button.toggle {
-            padding: $widget_padding;
-            border-radius: $border_radius_widget;
+            padding: var(--padding-widget);
+            border-radius: var(--border-radius-widget);
         }
     }
 }
 
 button,
 menubutton {
-    border-radius: $border_radius_widget;
+    border-radius: var(--border-radius-widget);
     background-color: unset;
     min-height: unset;
     min-width: unset;
-    padding: $button_padding;
+    padding: var(--padding-button);
 
     &:hover {
-        background-color: rgba($color_fg, 0.1);
+        background-color: var(--color-bg-highlight);
 
         & .critical,
         & .accent {
-            color: $color_bg;
+            color: var(--color-bg);
         }
     }
 
     // TODO: fix this so it doesn't highlight when you hover over calendar/popups too
     &.widget:hover {
-        background-color: $color_accent;
+        background-color: var(--color-accent);
     }
 
     &:active {
-        background-color: $color_accent_2
+        background-color: var(--color-accent-2);
     }
 }
 
 levelbar trough {
-    background-color: $color_bg;
-    border-radius: $border_radius_widget;
+    background-color: var(--color-bg);
+    border-radius: var(--border-radius-widget);
 
     .empty {
-        border-radius: $border_radius_widget;
+        border-radius: var(--border-radius-widget);
     }
 
     .filled {
-        background-color: $color_accent;
-        border-radius: $border_radius_widget;
+        background-color: var(--color-accent);
+        border-radius: var(--border-radius-widget);
     }
 }
 
 popover>* {
-    background-color: $color_bg;
-    border-radius: $border_radius_panel;
-    border: $panel_border;
+    background-color: var(--color-bg);
+    border-radius: var(--border-radius-panel);
+    border: var(--border-panel);
 }
 
 calendar {
     border: none;
-    color: $color_fg;
+    color: var(--color-fg);
 
     & .today {
-        border: 2px solid $color_accent;
-        border-radius: $border_radius_widget;
+        border: 2px solid var(--color-accent);
+        border-radius: var(--border-radius-widget);
     }
 
     & *:selected {
-        background-color: $color_accent;
-        border-radius: $border_radius_widget;
+        background-color: var(--color-accent);
+        border-radius: var(--border-radius-widget);
     }
 
     & *:indeterminate {
-        color: rgba($color_fg, 0.1);
+        color: var(--color-bg-highlight);
     }
 
     & *.highlight {
-        color: $color_accent;
+        color: var(--color-accent);
     }
 }
 
 tooltip {
-    border-radius: $border_radius_small;
-    background-color: $color_bg;
+    border-radius: var(--border-radius-small);
+    background-color: var(--color-bg);
 
     label {
-        color: $color_fg;
+        color: var(--color-fg);
         margin: 3px;
     }
 }
 
 entry {
-    padding: $widget_padding;
-    border-radius: $border_radius_widget;
+    padding: var(--padding-widget);
+    border-radius: var(--border-radius-widget);
 
     & selection {
-        background-color: $color_accent;
+        background-color: var(--color-accent);
     }
 }
 
 // #endregion
 // #region general/global class styling
 .panel {
-    background-color: $color_bg;
-    border-radius: $border_radius_panel;
-    padding: $panel_padding;
-    box-shadow: 0px 0px 5px $color_shadow;
-    border: $panel_border;
+    background-color: var(--color-bg);
+    border-radius: var(--border-radius-panel);
+    padding: var(--padding-panel);
+    box-shadow: 0px 0px 5px var(--color-shadow);
+    border: var(--border-panel);
 }
 
 .widget {
-    background-color: $color_bg_2;
-    padding: $widget_padding;
-    border-radius: $border_radius_widget;
-    border: $widget_border;
+    background-color: var(--color-bg-2);
+    padding: var(--padding-widget);
+    border-radius: var(--border-radius-widget);
+    border: var(--border-widget);
 }
 
 .bigtext {
@@ -214,77 +189,77 @@ entry {
 
 .subtitle {
     font-size: 25px;
-    color: $color_fg_2;
+    color: var(--color-fg-2);
 }
 
 .open {
-    background-color: $color_accent;
+    background-color: var(--color-accent);
 
     .accent,
     .critical {
-        color: $color_bg;
+        color: var(--color-bg);
     }
 }
 
 .accent {
-    color: $color_accent;
+    color: var(--color-accent);
 }
 
 .alert {
-    color: $color_alert;
+    color: var(--color-alert);
 
     &.open {
-        color: $color_bg;
+        color: var(--color-bg);
     }
 }
 
 .critical {
-    color: $color_bad;
+    color: var(--color-bad);
 
     &.open {
-        color: $color_bg;
+        color: var(--color-bg);
     }
 }
 
 .alert {
-    color: $color_alert;
+    color: var(--color-alert);
 }
 
 .good {
-    color: $color_good;
+    color: var(--color-good);
 
     &.open {
-        color: $color_bg;
+        color: var(--color-bg);
     }
 }
 
 .thin-separator-horiz {
-    border-radius: $border_radius_panel;
-    border: 1.5px solid rgba($color_fg, 0.1);
+    border-radius: var(--border-radius-panel);
+    border: 1.5px solid var(--color-bg-highlight);
     margin: 0px 20px;
 }
 
 .thin-separator-vert {
-    border-radius: $border_radius_panel;
-    border: 1.5px solid rgba($color_fg, 0.1);
+    border-radius: var(--border-radius-panel);
+    border: 1.5px solid var(--color-bg-highlight);
     margin: 20px 0px;
 }
 
 .accent-border {
-    border: 3px solid $color_accent;
+    border: 3px solid var(--color-accent);
 }
 
 // #endregion
 // #region bar styling
 .workspace {
-    padding: $workspace_icon_padding;
+    padding: var(--padding-workspace-icon);
 
     * {
         font-size: 0.55em;
     }
 
     &.focused * {
-        color: $color_accent;
+        color: var(--color-accent);
     }
 }
 
@@ -295,27 +270,27 @@ entry {
 .bar-icon {
     font-size: 0.8em;
     background-color: transparent;
-    padding: $small_item_padding;
+    padding: var(--padding-small-item);
 }
 
 // systray popups
 .popup {
-    background-color: $color_bg;
-    border-radius: $border_radius_small;
+    background-color: var(--color-bg);
+    border-radius: var(--border-radius-small);
 
     // all elements within the popup menu:
     //   (i cant find exactly what this selects but
     //   it looks right and works right so ill take it)
     &>*>* {
-        padding: $button_padding;
+        padding: var(--padding-button);
 
         &:hover {
-            background-color: $color_accent;
+            background-color: var(--color-accent);
         }
     }
 
     separator {
-        background-color: rgba($color_fg, 0.1);
+        background-color: var(--color-bg-highlight);
         padding: 1px 0px;
         margin: 0.2em 0.5em;
         border-radius: 100px;
@@ -325,30 +300,30 @@ entry {
 // #endregion
 // #region notifications
 .notification {
-    background-color: $color_bg;
-    padding: $widget_padding;
-    border-radius: $border_radius_widget;
-    box-shadow: 0px 0px 6px $color_shadow;
-    border: $panel_border;
+    background-color: var(--color-bg);
+    padding: var(--padding-widget);
+    border-radius: var(--border-radius-widget);
+    box-shadow: 0px 0px 6px var(--color-shadow);
+    border: var(--border-panel);
 
     &:hover {
-        background-color: $color_bg_2;
+        background-color: var(--color-bg-2);
     }
 }
 
 .notif-title {
-    color: $color_fg;
+    color: var(--color-fg);
     font-size: 0.8em;
 }
 
 .notif-body {
-    color: rgba($color_fg, 0.6);
+    color: var(--color-fg-trans);
     font-size: 0.7em;
 }
 
 .notif-close-button * {
     font-size: 0.5em;
-    color: rgba($color_fg, 0.3);
+    color: var(--color-fg-moretrans);
 }
 
 .notif-action-button * {
@@ -356,22 +331,22 @@ entry {
 }
 
 .notif-image {
-    border-radius: $border_radius_widget;
-    margin-right: $panel_padding;
+    border-radius: var(--border-radius-widget);
+    margin-right: var(--padding-panel);
 }
 
 // #endregion
 // #region app launcher
 .search-bar {
-    padding: $panel_padding;
-    border-radius: $border_radius_widget;
+    padding: var(--padding-panel);
+    border-radius: var(--border-radius-widget);
 }
 
 // #endregion
 // #region quick menu
 .big-button {
-    background-color: rgba($color_fg, 0.04);
-    border-radius: $border_radius_widget;
+    background-color: var(--color-bg-highlight);
+    border-radius: var(--border-radius-widget);
 
     & * {
         background-color: unset;
@@ -384,7 +359,7 @@ entry {
 
     *.thin-separator-vert,
     *.thin-separator-horiz {
-        border: 1.5px solid rgba($color_bg, 0.1);
+        border: 1.5px solid var(--color-bg-highlight);
         margin: 6px 0px;
     }
 
@@ -393,42 +368,42 @@ entry {
     }
 
     &:hover {
-        background-color: $color_accent;
+        background-color: var(--color-accent);
     }
 }
 
 .big-button-icon,
 .big-button-icon * {
-    color: $color_fg;
+    color: var(--color-fg);
     font-size: 1.3rem;
 }
 
 .big-button-desc {
     font-size: 0.8em;
-    color: rgba($color_fg, 0.3);
+    color: var(--color-fg-moretrans);
 }
 
 .enabled {
-    background-color: $color_fg;
+    background-color: var(--color-fg);
 
     &,
     & * {
-        color: $color_bg;
+        color: var(--color-bg);
     }
 
     &:hover {
-        background-color: $color_accent;
+        background-color: var(--color-accent);
 
         &,
         & * {
-            color: $color_fg;
+            color: var(--color-fg);
         }
     }
 }
 
 .bat-time {
     font-size: 0.7em;
-    color: rgba($color_fg, 0.3);
+    color: var(--color-fg-moretrans);
 }
 
 .page-nav-text {
@@ -436,7 +411,7 @@ entry {
 }
 
 .wifi-passwd-entry {
-    background-color: $color_accent;
+    background-color: var(--color-accent);
 }
 
 .now-playing-title {
@@ -446,38 +421,38 @@ entry {
 
 .now-playing-artist {
     font-size: 0.7em;
-    color: rgba($color_fg, 0.5);
+    color: var(--color-fg-trans);
 }
 
 .now-playing-art {
     background-size: cover;
     background-repeat: no-repeat;
-    border-radius: $border_radius_small;
+    border-radius: var(--border-radius-small);
     background-position: center;
 }
 
 .now-playing-player-icon {
     font-size: 0.8em;
     padding: 4px;
-    color: rgba($color_fg, 0.2);
+    color: var(--color-fg-moretrans);
 }
 
 .now-playing-time {
     font-size: 0.5em;
-    color: rgba($color_fg, 0.3);
+    color: var(--color-fg-moretrans);
 }
 
 // #endregion
 // #region progress popup
 .volume-popup {
-    background-color: $color_bg;
-    padding: $panel_padding;
-    border-radius: $border_radius_volume_popup;
-    box-shadow: 5px 5px 4px $color_shadow;
-    border: $panel_border;
+    background-color: var(--color-bg);
+    padding: var(--padding-panel);
+    border-radius: var(--border-radius-volume-popup);
+    box-shadow: 5px 5px 4px var(--color-shadow);
+    border: var(--border-panel);
 
     & levelbar trough {
-        background-color: $color_bg_2;
+        background-color: var(--color-bg-2);
     }
 }
 
