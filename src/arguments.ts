@@ -2,19 +2,70 @@ import { Argument, ArgumentFunc } from "./types";
 import { Gtk } from "ags/gtk4";
 import { clearDisplayedNotifs } from "./notifications";
 
-export const ARGS: Record<string, ArgumentFunc> = Object.seal({
-    "help": printHelp,
-    "--help": printHelp,
-    "-h": printHelp,
-    "message": printMessage,
-    "--message": printMessage,
-    "-m": printMessage,
-    "toggle": togglePanel,
-    "--toggle-panel": togglePanel,
-    "-t": togglePanel,
-    "--clear-notifs": clearDisplayedNotifsAlias,
-    "clear-notifs": clearDisplayedNotifsAlias,
-});
+interface ArgDesc {
+    shortFlag: string;
+    longFlag?: string;
+    func: ArgumentFunc;
+};
+
+const ARGS: Record<string, ArgDesc> = {
+    "help": {
+        shortFlag: "h",
+        func: printHelp,
+    },
+
+    "toggle": {
+        shortFlag: "t",
+        func: togglePanel,
+    },
+
+    "message": {
+        shortFlag: "m",
+        func: printMessage,
+    },
+
+    "notifs": {
+        shortFlag: "n",
+        func: handleNotifs,
+    }
+};
+
+const SHORT_FLAG_PREFIX = "-";
+const LONG_FLAG_PREFIX = "--";
+const ARG_MAP: Record<string, ArgumentFunc> = Object.seal((() => {
+    const retMap: Record<string, ArgumentFunc> = {};
+
+    for (let key in ARGS) {
+        let { shortFlag, longFlag, func } = ARGS[key];
+        longFlag ||= key;
+
+        retMap[key] = func;
+        retMap[`${SHORT_FLAG_PREFIX}${shortFlag}`] = func;
+        retMap[`${LONG_FLAG_PREFIX}${longFlag}`] = func;
+    }
+
+    return retMap;
+})());
+
+// const ARGS: Record<string, ArgumentFunc> = Object.seal({
+//     // TODO: remove most of the flag arguments . -t doesnt make sense
+//     "help": printHelp,
+//     "--help": printHelp,
+//     "-h": printHelp,
+//     "message": printMessage,
+//     "--message": printMessage,
+//     "-m": printMessage,
+//     "toggle": togglePanel,
+//     "--toggle-panel": togglePanel,
+//     "-t": togglePanel,
+//     // TODO: refactor into "notifs" command, has subcommands
+//     //   bited notifs clear
+//     //   bited notifs restore 5
+//     //   bited notifs toggle-dnd
+//     //   etc.
+//     "--clear-notifs": clearDisplayedNotifsAlias,
+//     "clear-notifs": clearDisplayedNotifsAlias,
+// });
 
 let popovers: Record<string, Gtk.Popover[]> = {};
 let windows: Record<string, Gtk.Window[]> = {};
@@ -88,9 +139,13 @@ function togglePanel(panelName?: string) {
     return `panel "${panelName}" toggled!`;
 }
 
-function clearDisplayedNotifsAlias() {
-    clearDisplayedNotifs();
-    return "notifs cleared!";
+function handleNotifs(args?: string) {
+    if (args === "clear") {
+        clearDisplayedNotifs();
+        return "notifs cleared!";
+    }
+
+    return "notifs arg not recognized!";
 }
 
 export function parseArgs(argv: string[]): Argument[] {
@@ -100,10 +155,10 @@ export function parseArgs(argv: string[]): Argument[] {
         const name = argv[i];
         let value: string | undefined;
 
-        let func = ARGS[name];
+        let func = ARG_MAP[name];
         if (!func) {
             print(`option "${name}" not recognized!`);
-            func = ARGS["--help"];
+            func = ARG_MAP["--help"];
         }
 
         if (func.length > 0) {
