@@ -207,17 +207,3 @@ export function isAppConfig(arg: any): arg is AppConfig {
         isNotifPopupDesc(arg.notifPopups)
     );
 }
-
-export function isStringRecord<T>(arg: any): arg is Record<string, T> {
-    if (typeof arg !== "object") {
-        return false;
-    }
-
-    for (let key in arg) {
-        if (typeof arg[key] !== "string") {
-            return false;
-        }
-    }
-
-    return true;
-}

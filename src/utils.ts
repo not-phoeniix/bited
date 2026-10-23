@@ -148,3 +148,19 @@ export function processScss(fileContent: string, overrideVars: Record<string, st
 
     return retStr;
 }
+
+export function fileExists(path: string) {
+    return exec(`bash -c "[ -f '${path}' ] && echo 'true' || echo 'baha noooo baha nnnooooo'"`) === "true";
+}
+
+export function filterStringRecord(arg: object): Record<string, string> {
+    const ret: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(arg)) {
+        if (typeof value === "string") {
+            ret[key] = value;
+        }
+    }
+
+    return ret;
+}

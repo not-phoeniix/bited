@@ -9,6 +9,7 @@ const XDG_CONFIG_HOME = getEnv("XDG_CONFIG_HOME") || makePath(HOME, ".config");
 const XDG_CACHE_DIR = getEnv("XDG_CACHE_HOME") || makePath(HOME, ".cache");
 const APP_CONFIG_DIR = makePath(XDG_CONFIG_HOME, APP_DIR_NAME);
 const APP_CACHE_DIR = makePath(XDG_CACHE_DIR, APP_DIR_NAME);
+const APP_CACHE_PREV_THEME_FILE = makePath(APP_CACHE_DIR, "theme");
 
 export default {
     HOME,
@@ -17,4 +18,5 @@ export default {
     APP_DIR_NAME,
     APP_CONFIG_DIR,
     APP_CACHE_DIR,
+    APP_CACHE_PREV_THEME_FILE,
 };
