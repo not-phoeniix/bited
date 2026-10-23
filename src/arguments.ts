@@ -1,10 +1,11 @@
-import { Argument, ArgumentFunc, isStringRecord } from "./types";
+import { Argument, ArgumentFunc } from "./types";
 import { Gtk } from "ags/gtk4";
 import { clearDisplayedNotifs } from "./notifications";
-import { readFile } from "ags/file";
+import { readFile, writeFile } from "ags/file";
 import app from "ags/gtk4/app";
-import { processScss } from "./utils";
+import { fileExists, filterStringRecord, processScss } from "./utils";
 import style from "./style.scss.txt";
+import paths from "./paths";
 
 interface ArgDesc {
     shortFlag: string;
@@ -167,16 +168,21 @@ function parseThemeFile(file?: string) {
         return "missing file path!";
     }
 
+    if (!fileExists(file)) {
+        return "file doesn't exist!";
+    }
+
     try {
         const fileContents = readFile(file);
-        const { cssVars } = JSON.parse(fileContents);
+        let { cssVars } = JSON.parse(fileContents);
 
-        if (!cssVars || !isStringRecord<string>(cssVars)) {
-            return "theme file property \"cssVars\" missing or improperly formatted!";
+        if (!cssVars) {
+            cssVars = {};
         }
 
-        app.apply_css(processScss(style, cssVars), true);
-        return `theme "${file}" set!`;
+        app.apply_css(processScss(style, filterStringRecord(cssVars)), true);
+        writeFile(paths.APP_CACHE_PREV_THEME_FILE, file);
+        return `theme ${file} set!`;
 
     } catch (err) {
         return "error when parsing theme file: " + err;

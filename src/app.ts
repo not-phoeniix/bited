@@ -10,7 +10,38 @@ import { createBinding, createEffect } from "gnim";
 import { Gtk } from "ags/gtk4";
 import GObject from "gnim/gobject";
 import notifications from "./notifications";
-import { processScss } from "./utils";
+import { fileExists, filterStringRecord, processScss } from "./utils";
+import { exec } from "ags/process";
+import { readFile } from "ags/file";
+
+function tryGetCssVars(): Record<string, string> {
+    if (fileExists(paths.APP_CACHE_PREV_THEME_FILE)) {
+        try {
+            const prevThemePath = readFile(paths.APP_CACHE_PREV_THEME_FILE);
+            if (!prevThemePath || !fileExists(prevThemePath)) {
+                console.log("prev cached theme path missing or invalid");
+                return {};
+            }
+
+            const themeFileContents = readFile(prevThemePath);
+            const { cssVars } = JSON.parse(themeFileContents);
+
+            if (!cssVars) {
+                return {};
+            }
+
+            return filterStringRecord(cssVars);
+
+        } catch (err) {
+            console.log("error when parsing theme file: " + err);
+            return {};
+        }
+
+    } else {
+        console.log("prev cached theme file not found!");
+        return {};
+    }
+}
 
 function run() {
     monitorConfigFile(makePath(paths.APP_CONFIG_DIR, "config.json"));
@@ -65,7 +96,6 @@ function run() {
 
 app.start({
     instanceName: "bited",
-    css: processScss(style, {}),
     requestHandler(argv: string[], res) {
         let retStr = "";
 
@@ -88,6 +118,8 @@ app.start({
 
             app.quit();
         } else {
+            exec("mkdir -p " + paths.APP_CACHE_DIR);
+            app.apply_css(processScss(style, tryGetCssVars()));
             run();
         }
     },
