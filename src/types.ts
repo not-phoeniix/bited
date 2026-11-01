@@ -86,12 +86,9 @@ export interface AppConfig {
     notifPopups: NotifPopupDesc;
 };
 
-export type ArgumentFunc = (value?: string) => string;
-
-export interface Argument {
-    name: string;
-    value?: string;
-    func: ArgumentFunc;
+export interface CommandDesc {
+    cmd: string;
+    arg?: string;
 };
 
 // ~~~ type check functions ~~~
@@ -205,5 +202,13 @@ export function isAppConfig(arg: any): arg is AppConfig {
         isTypedArray<BarDesc>(arg.bars, isBarDesc) &&
         isVolumePopupDesc(arg.volumePopup) &&
         isNotifPopupDesc(arg.notifPopups)
+    );
+}
+
+export function isCommandDesc(arg: any): arg is CommandDesc {
+    return (
+        typeof arg === "object" &&
+        typeof arg.cmd === "string" &&
+        (typeof arg.arg === "undefined" || typeof arg.arg === "string")
     );
 }

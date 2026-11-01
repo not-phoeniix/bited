@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+
+SCRIPT_NAME=$(basename $0)
+if [ -z "$XDG_RUNTIME_DIR" ]; then $XDG_RUNTIME_DIR="/run/user/$(id -u $USER)"; fi
+RUNTIME_DIR="$XDG_RUNTIME_DIR/bited"
+IN_PIPE_PATH="$RUNTIME_DIR/bited_in.fifo"
+OUT_PIPE_PATH="$RUNTIME_DIR/bited_out.fifo"
+
+print_usage() {
+    echo -e "Usage: $SCRIPT_NAME [OPTION | COMMAND]..."
+    echo -e 'utility script for interfacing with the bited shell'
+    echo
+    echo -e 'Commands:'
+    echo -e "  toggle \ttoggles visibility of a panel"
+    echo -e "  list   \tlists all panels"
+    echo -e "  notifs \tinterfaces with notifs"
+    echo -e "  theme  \tsets/loads a theme file"
+    echo -e "  ping   \ttests connection to pipe"
+    echo
+    echo -e 'Options:'
+    echo -e "  -h, --help \tprints this message"
+}
+
+if [[ -z "$@" ]]; then
+    print_usage
+    exit 0
+fi
+
+send_pipe_cmd_raw() {
+    # exit w error if bited isn't running
+    if ! pgrep bited >/dev/null 2>&1; then
+        echo "bited is not running, cannot send command!"
+        exit 1
+    fi
+
+    if [ ! -p "$IN_PIPE_PATH" ]; then
+        echo "ERR: input pipe at path '$IN_PIPE_PATH' missing!"
+        exit 1
+    fi
+
+    if [ ! -p "$OUT_PIPE_PATH" ]; then
+        echo "ERR: output pipe at path '$OUT_PIPE_PATH' missing!"
+        exit 1
+    fi
+
+    if [ -z "$1" ]; then
+        echo "ERR: raw pipe cmd json string missing"
+        exit 1
+    fi
+
+    # launch background cat before sending cmd
+    (echo -e "$(cat $OUT_PIPE_PATH)") & 
+    pid=$!
+
+    echo "$1" > $IN_PIPE_PATH
+
+    # wait for response before exiting
+    wait $pid
+}
+
+send_pipe_cmd() {
+    send_pipe_cmd_raw "{\"cmd\":\"$1\"}"
+}
+
+send_pipe_cmd_arg() {
+    if [ -z "$2" ]; then
+        echo "ERR: command '$1' requires an argument!"
+        exit 1
+    fi
+
+    send_pipe_cmd_raw "{\"cmd\":\"$1\",\"arg\":\"$2\"}"
+}
+
+# arg parsing ... --> https://mywiki.wooledge.org/BashFAQ/035
+while true; do
+    case $1 in
+        # --- options ---
+        '-h' | '--help') print_usage; exit 0 ;;
+
+        # --- commands ---
+
+        'toggle') send_pipe_cmd_arg "toggle" $2; exit 0 ;;
+        'list') send_pipe_cmd "list"; exit 0 ;;
+        'theme') send_pipe_cmd_arg "theme" $2; exit 0 ;;
+        'notifs') send_pipe_cmd_arg "notifs" $2; exit 0 ;;
+        'ping') send_pipe_cmd "ping"; exit 0 ;;
+
+        # --- unrecognized ---
+        *)
+            echo "invalid option '$1'!"
+            echo "try '$SCRIPT_NAME' --help for more info !"
+            exit 1
+            ;;
+    esac
+
+    shift
+done
+

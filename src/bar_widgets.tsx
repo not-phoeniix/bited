@@ -3,7 +3,7 @@ import AstalTray from "gi://AstalTray";
 import GLib from "gi://GLib";
 import { Gdk, Gtk } from "ags/gtk4";
 import { Accessor, createBinding, createComputed, createState, For } from "gnim";
-import { registerPanel } from "./arguments";
+import { registerPanel } from "./commands";
 import config from "./config";
 import { batteryIcon, bluetoothIcon, networkIcon, volumeIcon } from "./icons";
 import quickMenu from "./quick_menu";
