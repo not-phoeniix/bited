@@ -27,7 +27,6 @@ if [[ -z "$@" ]]; then
 fi
 
 send_pipe_cmd_raw() {
-    # exit w error if bited isn't running
     if ! pgrep bited >/dev/null 2>&1; then
         echo "bited is not running, cannot send command!"
         exit 1
@@ -48,13 +47,12 @@ send_pipe_cmd_raw() {
         exit 1
     fi
 
-    # launch background cat before sending cmd
+    # launch background cat to read response BEFORE sending cmd
     (echo -e "$(cat $OUT_PIPE_PATH)") & 
     pid=$!
 
     echo "$1" > $IN_PIPE_PATH
 
-    # wait for response before exiting
     wait $pid
 }
 
@@ -78,7 +76,6 @@ while true; do
         '-h' | '--help') print_usage; exit 0 ;;
 
         # --- commands ---
-
         'toggle') send_pipe_cmd_arg "toggle" $2; exit 0 ;;
         'list') send_pipe_cmd "list"; exit 0 ;;
         'theme') send_pipe_cmd_arg "theme" $2; exit 0 ;;
