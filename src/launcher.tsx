@@ -3,7 +3,7 @@ import app from "ags/gtk4/app";
 import { Astal, Gdk, Gtk } from "ags/gtk4";
 import { Accessor, createBinding, createComputed, For } from "gnim";
 import config from "./config";
-import { registerPanel } from "./arguments";
+import { registerPanel } from "./commands";
 
 const apps = new AstalApps.Apps();
 

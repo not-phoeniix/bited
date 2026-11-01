@@ -150,7 +150,7 @@ export function processScss(fileContent: string, overrideVars: Record<string, st
 }
 
 export function fileExists(path: string) {
-    return exec(`bash -c "[ -f '${path}' ] && echo 'true' || echo 'baha noooo baha nnnooooo'"`) === "true";
+    return exec(`bash -c "[ -e '${path}' ] && echo 'true' || echo 'baha noooo baha nnnooooo'"`) === "true";
 }
 
 export function filterStringRecord(arg: object): Record<string, string> {

@@ -1,6 +1,5 @@
 import app from "ags/gtk4/app";
 import style from "./style.scss.txt";
-import { deregisterAllPanels, parseArgs } from "./arguments";
 import bar from "./bar";
 import launcher from "./launcher";
 import volumePopup from "./volume_popup";
@@ -13,6 +12,7 @@ import notifications from "./notifications";
 import { fileExists, filterStringRecord, processScss } from "./utils";
 import { exec } from "ags/process";
 import { readFile } from "ags/file";
+import { deregisterAllPanels, monitorPipe } from "./commands";
 
 function tryGetCssVars(): Record<string, string> {
     if (fileExists(paths.APP_CACHE_PREV_THEME_FILE)) {
@@ -96,31 +96,14 @@ function run() {
 
 app.start({
     instanceName: "bited",
-    requestHandler(argv: string[], res) {
-        let retStr = "";
-
-        for (let arg of parseArgs(argv)) {
-            retStr += arg.func(arg.value);
-        }
-
-        res(retStr);
-    },
     main(...argv: string[]) {
-        const parsedArgs = parseArgs(argv);
-        if (parsedArgs.length > 0) {
-            let printStr = "";
+        exec(`mkdir -p ${paths.APP_CACHE_DIR}`);
+        exec(`mkdir -p ${paths.APP_RUNTIME_DIR}`);
+        exec(`rm -f ${paths.APP_RUNTIME_IN_PIPE_FILE} ${paths.APP_RUNTIME_OUT_PIPE_FILE}`);
+        exec(`mkfifo ${paths.APP_RUNTIME_IN_PIPE_FILE} ${paths.APP_RUNTIME_OUT_PIPE_FILE}`);
+        monitorPipe(paths.APP_RUNTIME_IN_PIPE_FILE);
 
-            for (let arg of parsedArgs) {
-                printStr += arg.func(arg.value);
-            }
-
-            print(printStr);
-
-            app.quit();
-        } else {
-            exec("mkdir -p " + paths.APP_CACHE_DIR);
-            app.apply_css(processScss(style, tryGetCssVars()));
-            run();
-        }
+        app.apply_css(processScss(style, tryGetCssVars()));
+        run();
     },
 });
