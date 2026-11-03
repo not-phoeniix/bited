@@ -1,5 +1,5 @@
 import AstalWp from "gi://AstalWp";
-import Brightness from "./brightness";
+import Brightness from "./services/brightness";
 import { Astal, Gdk, Gtk } from "ags/gtk4";
 import { Accessor, createBinding, createComputed, createEffect, createState } from "gnim";
 import GLib from "gi://GLib";

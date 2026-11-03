@@ -35,10 +35,6 @@ export interface WorkspacesHyprlandConfig {
     workspaces: WorkspaceDesc[];
 };
 
-export interface TagsKWMConfig {
-    workspaces: WorkspaceDesc[];
-}
-
 export interface WorkspacesNiriConfig {
     namedWorkspaces: {
         name: string;
@@ -118,13 +114,6 @@ export function isWorkspaceDesc(arg: any): arg is WorkspaceDesc {
         (typeof arg.icon === "undefined" || typeof arg.icon === "string") &&
         (typeof arg.special === "undefined" || typeof arg.special === "boolean") &&
         (typeof arg.separated === "undefined" || typeof arg.separated === "boolean")
-    );
-}
-
-export function isTagsKWMConfig(arg: any): arg is TagsKWMConfig {
-    return (
-        typeof arg === "object" &&
-        isTypedArray(arg.workspaces, isWorkspaceDesc)
     );
 }
 

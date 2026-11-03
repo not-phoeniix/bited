@@ -2,10 +2,12 @@ import { exec, execAsync } from "ags/process";
 import { createPoll } from "ags/time";
 import { StateObject, Time } from "./types";
 import { createState } from "gnim";
-import { Astal, Gdk } from "ags/gtk4";
+import { Astal } from "ags/gtk4";
 import Gio from "gi://Gio";
 import { readFile } from "ags/file";
-import paths, { makePath } from "./paths";
+
+export const getEnv = (env: string) => exec(`bash -c 'echo $${env}'`);
+export const makePath = (...paths: string[]) => paths.join("/").replaceAll(/\/+/g, "/");
 
 const DEFAULT_TIME: Time = Object.seal({
     hour: 0,
@@ -108,8 +110,12 @@ export function hexToRgb(hex: string) {
 }
 
 
-export function processScss(fileContent: string, overrideVars: Record<string, string>): string {
-    const walScssVars = readFile(makePath(paths.XDG_CACHE_DIR, "wal", "colors.scss"));
+export function processScss(
+    fileContent: string,
+    overrideVars: Record<string, string>,
+    walScssCachePath: string
+): string {
+    const walScssVars = readFile(walScssCachePath);
 
     let overrideVarsCombined = "";
     for (let key in overrideVars) {

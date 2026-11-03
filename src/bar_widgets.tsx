@@ -1,7 +1,7 @@
 import AstalHyprland from "gi://AstalHyprland";
 import AstalTray from "gi://AstalTray";
 import GLib from "gi://GLib";
-import { Gdk, Gtk } from "ags/gtk4";
+import { Gtk } from "ags/gtk4";
 import { Accessor, createBinding, createComputed, createState, For } from "gnim";
 import { registerPanel } from "./commands";
 import config from "./config";
@@ -10,8 +10,7 @@ import quickMenu from "./quick_menu";
 import { createTimePoll, padNumberStr } from "./utils";
 import { isTimeCalConfig, isTypedArray, isWorkspaceDesc, isWorkspacesNiriConfig, WorkspaceDesc, WorkspacesNiriConfig } from "./types";
 import GObject from "gnim/gobject";
-import KWM from "./kwm";
-import Niri, { NiriWorkspace } from "./niri";
+import Niri, { NiriWorkspace } from "./services/niri";
 
 interface WidgetProps {
     orientation: Gtk.Orientation;
@@ -205,20 +204,6 @@ function workspacesGeneric(
     );
 }
 
-export function tagsKwm(props: WidgetProps) {
-    const kwm = KWM.get_default();
-
-    const activeTags = createBinding(kwm, "activeTags");
-    const existingTags = activeTags;
-
-    return workspacesGeneric(
-        activeTags,
-        existingTags,
-        () => { },
-        props
-    );
-}
-
 export function workspacesHyprland(props: WidgetProps) {
     // hyprland state
     const hyprland = AstalHyprland.get_default();
@@ -309,7 +294,6 @@ const FUNCTIONS: Record<string, (props: WidgetProps) => GObject.Object> = {
     timeCal,
     windowTitleHyprland,
     windowTitleNiri,
-    tagsKwm,
     workspacesHyprland,
     workspacesNiri,
 };

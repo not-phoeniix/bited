@@ -1,7 +1,5 @@
 import { exec } from "ags/process";
-
-export const getEnv = (env: string) => exec(`bash -c 'echo $${env}'`);
-export const makePath = (...paths: string[]) => paths.join("/").replaceAll(/\/+/g, "/");
+import { getEnv, makePath } from "./utils";
 
 const APP_DIR_NAME = "bited";
 const HOME = getEnv("HOME");

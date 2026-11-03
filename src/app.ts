@@ -4,12 +4,12 @@ import bar from "./bar";
 import launcher from "./launcher";
 import volumePopup from "./volume_popup";
 import config, { monitorConfigFile } from "./config";
-import paths, { makePath } from "./paths";
+import paths from "./paths";
 import { createBinding, createEffect } from "gnim";
 import { Gtk } from "ags/gtk4";
 import GObject from "gnim/gobject";
 import notifications from "./notifications";
-import { fileExists, filterStringRecord, processScss } from "./utils";
+import { fileExists, filterStringRecord, processScss, makePath } from "./utils";
 import { exec } from "ags/process";
 import { readFile } from "ags/file";
 import { deregisterAllPanels, monitorPipe } from "./commands";
@@ -103,7 +103,11 @@ app.start({
         exec(`mkfifo ${paths.APP_RUNTIME_IN_PIPE_FILE} ${paths.APP_RUNTIME_OUT_PIPE_FILE}`);
         monitorPipe(paths.APP_RUNTIME_IN_PIPE_FILE);
 
-        app.apply_css(processScss(style, tryGetCssVars()));
+        app.apply_css(processScss(
+            style,
+            tryGetCssVars(),
+            makePath(paths.XDG_CACHE_DIR, "wal", "colors.scss")
+        ));
         run();
     },
 });

@@ -1,5 +1,5 @@
 import { exec, subprocess } from "ags/process";
-import { fileExists, filterStringRecord, processScss } from "./utils";
+import { fileExists, filterStringRecord, makePath, processScss } from "./utils";
 import { Gtk } from "ags/gtk4";
 import paths from "./paths";
 import { isCommandDesc } from "./types";
@@ -94,7 +94,14 @@ function theme(file?: string) {
             cssVars = {};
         }
 
-        app.apply_css(processScss(style, filterStringRecord(cssVars)), true);
+        app.apply_css(
+            processScss(
+                style,
+                filterStringRecord(cssVars),
+                makePath(paths.XDG_CACHE_DIR, "wal", "colors.scss")
+            ),
+            true
+        );
         writeFile(paths.APP_CACHE_PREV_THEME_FILE, file);
         return `theme ${file} set!`;
 

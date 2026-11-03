@@ -1,7 +1,6 @@
 import GObject, { register, getter, setter } from "ags/gobject";
 import { readFileAsync } from "ags/file";
-import { exec, execAsync } from "ags/process";
-import { monitorFile } from "./utils";
+import { monitorFile } from "../utils";
 
 @register({ GTypeName: "KWM" })
 export default class KWM extends GObject.Object {
