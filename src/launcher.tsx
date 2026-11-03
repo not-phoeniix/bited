@@ -19,7 +19,7 @@ function appEntry(sysApp: AstalApps.Application, window: Gtk.Window) {
             <box spacing={20}>
                 <image
                     iconName={createBinding(sysApp, "iconName")}
-                    pixelSize={config.launcher.iconSize}
+                    iconSize={Gtk.IconSize.LARGE}
                 />
                 <label label={createBinding(sysApp, "name")} />
             </box>
@@ -38,7 +38,7 @@ function innerWidgets(window: Gtk.Window) {
             class="search-bar"
             placeholderText="search..."
             onActivate={() => {
-                window.hide();
+                window.visible = false;
                 appQuery()[0]?.launch();
             }}
         />
@@ -91,7 +91,7 @@ export default function launcher(monitor: Gdk.Monitor) {
         >
             <Gtk.EventControllerKey onKeyPressed={(source, key, _, mod) => {
                 if (key === Gdk.KEY_Escape) {
-                    window.hide();
+                    window.visible = false;
                 }
             }} />
         </window >
