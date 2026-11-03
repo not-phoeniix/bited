@@ -5,7 +5,7 @@ import { createBinding, createComputed, createState, For } from "gnim";
 import config from "./config";
 import Pango from "gi://Pango";
 import GLib from "gi://GLib";
-import Niri from "./niri";
+import Niri from "./services/niri";
 
 const notifClearFuncs: (() => void)[] = [];
 
