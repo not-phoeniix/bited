@@ -1,13 +1,10 @@
-import { exec } from "ags/process";
 import { getEnv, makePath } from "./utils";
 
 const APP_DIR_NAME = "bited";
 const HOME = getEnv("HOME");
 const XDG_CONFIG_HOME = getEnv("XDG_CONFIG_HOME") || makePath(HOME, ".config");
 const XDG_CACHE_DIR = getEnv("XDG_CACHE_HOME") || makePath(HOME, ".cache");
-const XDG_RUNTIME_DIR =
-    getEnv("XDG_RUNTIME_DIR") ||
-    makePath("/run/user", exec(`id -u ${getEnv("USER")}`));
+const XDG_RUNTIME_DIR = getEnv("XDG_RUNTIME_DIR") || "/tmp";
 const APP_CONFIG_DIR = makePath(XDG_CONFIG_HOME, APP_DIR_NAME);
 const APP_CACHE_DIR = makePath(XDG_CACHE_DIR, APP_DIR_NAME);
 const APP_CACHE_PREV_THEME_FILE = makePath(APP_CACHE_DIR, "theme");

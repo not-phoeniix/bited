@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 SCRIPT_NAME=$(basename $0)
-if [ -z "$XDG_RUNTIME_DIR" ]; then $XDG_RUNTIME_DIR="/run/user/$(id -u $USER)"; fi
-RUNTIME_DIR="$XDG_RUNTIME_DIR/bited"
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}/bited"
 IN_PIPE_PATH="$RUNTIME_DIR/bited_in.fifo"
 OUT_PIPE_PATH="$RUNTIME_DIR/bited_out.fifo"
 
@@ -15,7 +14,10 @@ print_usage() {
     echo -e "  list   \tlists all panels"
     echo -e "  notifs \tinterfaces with notifs"
     echo -e "  theme  \tsets/loads a theme file"
-    echo -e "  ping   \ttests connection to pipe"
+    echo
+    echo -e "Debug Commands:"
+    echo -e "  ping   \ttests connection to bited instance"
+    echo -e "  getvars\tprints all required vars"
     echo
     echo -e 'Options:'
     echo -e "  -h, --help \tprints this message"
@@ -25,6 +27,13 @@ if [[ -z "$@" ]]; then
     print_usage
     exit 0
 fi
+
+printvars() {
+    echo -e "SCRIPT_NAME='$SCRIPT_NAME'"
+    echo -e "RUNTIME_DIR='$RUNTIME_DIR'"
+    echo -e "IN_PIPE_PATH='$IN_PIPE_PATH'"
+    echo -e "OUT_PIPE_PATH='$OUT_PIPE_PATH'"
+}
 
 send_pipe_cmd_raw() {
     if ! pgrep bited >/dev/null 2>&1; then
@@ -81,6 +90,7 @@ while true; do
         'theme') send_pipe_cmd_arg "theme" $2; exit 0 ;;
         'notifs') send_pipe_cmd_arg "notifs" $2; exit 0 ;;
         'ping') send_pipe_cmd "ping"; exit 0 ;;
+        'getvars') printvars; exit 0 ;;
 
         # --- unrecognized ---
         *)
