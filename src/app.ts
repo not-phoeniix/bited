@@ -8,7 +8,7 @@ import paths from "./paths";
 import { createBinding, createEffect } from "gnim";
 import { Gtk } from "ags/gtk4";
 import GObject from "gnim/gobject";
-import notifications from "./notifications";
+import { notificationPopups } from "./notifications";
 import { fileExists, filterStringRecord, processScss, makePath } from "./utils";
 import { exec } from "ags/process";
 import { readFile } from "ags/file";
@@ -87,7 +87,7 @@ function run() {
                 currentWindows.push(
                     volumePopup(monitor),
                     launcher(monitor),
-                    notifications(monitor),
+                    notificationPopups(monitor),
                 );
             }
         });

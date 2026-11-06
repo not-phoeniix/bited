@@ -28,6 +28,10 @@ const DEFAULT_CONFIG: AppConfig = Object.seal<AppConfig>({
         width: 300,
         timeout: 5000,
     },
+    quickMenu: {
+        widgets: [],
+        customTextFmt: "computrer"
+    },
 });
 
 const config: StateObject<AppConfig> = stateObjectMap(DEFAULT_CONFIG);
@@ -117,6 +121,7 @@ async function loadFileConfig(path: string) {
         config.bars.set(configParsed.bars);
         config.volumePopup.set(configParsed.volumePopup);
         config.notifPopups.set(configParsed.notifPopups);
+        config.quickMenu.set(configParsed.quickMenu);
 
     } catch (err) {
         console.error(`CONFIG PARSE ERR: ${err}`);

@@ -144,7 +144,7 @@ export function clearDisplayedNotifs() {
     }
 }
 
-export default function notifications(monitor: Gdk.Monitor) {
+export function notificationPopups(monitor: Gdk.Monitor) {
     const notifd = AstalNotifd.get_default();
 
     if (!notifd) {
@@ -209,5 +209,12 @@ export default function notifications(monitor: Gdk.Monitor) {
                 </For>
             </box>
         </window>
+    );
+}
+
+export function notificationHistoryMenu() {
+    return (
+        <>
+        </>
     );
 }

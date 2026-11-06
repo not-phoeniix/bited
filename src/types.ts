@@ -75,11 +75,22 @@ export interface NotifPopupDesc {
     timeout: number;
 };
 
+export interface QuickMenuDesc {
+    customTextFmt: string;
+    // array of array of strings... -->
+    //   [
+    //     [ "wifi", "bluetooth" ],
+    //     [ "playerctl", "powerprofile" ],
+    //   ]
+    widgets: string[][];
+};
+
 export interface AppConfig {
     primaryOutput: string;
     bars: BarDesc[];
     volumePopup: VolumePopupDesc;
     notifPopups: NotifPopupDesc;
+    quickMenu: QuickMenuDesc;
 };
 
 export interface CommandDesc {
@@ -184,13 +195,25 @@ export function isNotifPopupDesc(arg: any): arg is NotifPopupDesc {
     );
 }
 
+export function isQuickMenuDesc(arg: any): arg is QuickMenuDesc {
+    return (
+        typeof arg === "object" &&
+        typeof arg.customTextFmt === "string" &&
+        isTypedArray(
+            arg.widgets,
+            (v) => isTypedArray(v, (v) => typeof v === "string")
+        )
+    );
+}
+
 export function isAppConfig(arg: any): arg is AppConfig {
     return (
         typeof arg === "object" &&
         typeof arg.primaryOutput === "string" &&
         isTypedArray<BarDesc>(arg.bars, isBarDesc) &&
         isVolumePopupDesc(arg.volumePopup) &&
-        isNotifPopupDesc(arg.notifPopups)
+        isNotifPopupDesc(arg.notifPopups) &&
+        isQuickMenuDesc(arg.quickMenu)
     );
 }
 
