@@ -14,6 +14,7 @@ print_usage() {
     echo -e "  list   \tlists all panels"
     echo -e "  notifs \tinterfaces with notifs"
     echo -e "  theme  \tsets/loads a theme file"
+    echo -e "  kill   \tkills any hanging bited instances"
     echo
     echo -e "Debug Commands:"
     echo -e "  ping   \ttests connection to bited instance"
@@ -94,6 +95,7 @@ while true; do
         'theme') send_pipe_cmd_arg "theme" $2 ; exit 0 ;;
         'notifs') send_pipe_cmd_arg "notifs" $2 ; exit 0 ;;
         'ping') echo "pinging bited..." ; send_pipe_cmd "ping" ; exit 0 ;;
+        'kill') pkill gjs ; exit 0 ;;
         'getvars') printvars; exit 0 ;;
 
         # --- unrecognized ---
