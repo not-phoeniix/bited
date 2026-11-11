@@ -83,6 +83,7 @@ export interface QuickMenuDesc {
     //     [ "playerctl", "powerprofile" ],
     //   ]
     widgets: string[][];
+    widgetConfig?: Record<string, any>;
 };
 
 export interface AppConfig {
@@ -202,7 +203,8 @@ export function isQuickMenuDesc(arg: any): arg is QuickMenuDesc {
         isTypedArray(
             arg.widgets,
             (v) => isTypedArray(v, (v) => typeof v === "string")
-        )
+        ) &&
+        (typeof arg.widgetConfig == "undefined" || typeof arg.widgetConfig === "object")
     );
 }
 

@@ -4,10 +4,11 @@ import { batteryIcon, networkIcon } from "./icons";
 import config from "./config";
 import { createBinding, createComputed } from "gnim";
 import GObject from "gnim/gobject";
-import { exec } from "ags/process";
+import { exec, execAsync } from "ags/process";
 import AstalNetwork from "gi://AstalNetwork";
 import AstalPowerProfiles from "gi://AstalPowerProfiles";
 import { createPoll } from "ags/time";
+import { getEnv } from "./utils";
 
 // #region widgets
 
@@ -36,7 +37,10 @@ function network() {
                 }
             }}
         >
-            <box>
+            <box
+                halign={Gtk.Align.CENTER}
+                spacing={config.spacing.labelSpacing}
+            >
                 {networkIcon("")}
                 <label label={primaryLabel} />
             </box>
@@ -46,9 +50,9 @@ function network() {
 
 function bluetooth() {
     return (
-        <box class="big-button">
+        <button class="big-button">
             <label label={"ohhh blutoth..\udb80\udcaf"} />
-        </box>
+        </button>
     );
 }
 
@@ -68,17 +72,69 @@ function powerprofile() {
 
             power.set_active_profile(allProfiles[idx]);
         }}>
-            <box>
-                <label label={activeProfile.as(a => `\udb85\udc0b ${a}`)} />
-            </box>
+            <label label={activeProfile.as(a => `\udb85\udc0b ${a}`)} />
         </button>
     );
 }
 
-const WIDGETS: Record<string, () => GObject.Object> = Object.seal({
+interface PacmanUpdateCountConfig {
+    pollRateHours?: number;
+    pollRateMinutes?: number;
+    pollRateSeconds?: number;
+    terminalCmd: string;
+};
+
+function isPacmanUpdateCountConfig(arg: any): arg is PacmanUpdateCountConfig {
+    const isUndefOrNum = (a: any) => typeof a === "undefined" || typeof a === "number";
+
+    return (
+        typeof arg === "object" &&
+        isUndefOrNum(arg.pollRateHours) &&
+        isUndefOrNum(arg.pollRateMinutes) &&
+        isUndefOrNum(arg.pollRateSeconds) &&
+        typeof arg.terminalCmd === "string"
+    );
+}
+
+const PACMAN_UPDATE_COUNT_DEFAULT_CONFIG: PacmanUpdateCountConfig = Object.seal({
+    pollRateHours: 6,
+    terminalCmd: getEnv("TERMINAL") || getEnv("TERM") || "xterm"
+});
+
+function pacmanUpdateCount(config: any) {
+    let cfg = PACMAN_UPDATE_COUNT_DEFAULT_CONFIG;
+    if (!isPacmanUpdateCountConfig(config)) {
+        cfg = config;
+    }
+
+    let pollRate: number = 0;
+    if (cfg.pollRateSeconds) pollRate += cfg.pollRateSeconds * 1000;
+    if (cfg.pollRateMinutes) pollRate += cfg.pollRateMinutes * 1000 * 60;
+    if (cfg.pollRateHours) pollRate += cfg.pollRateHours * 1000 * 60 * 60;
+
+    const updateablePackageCount = createPoll(
+        "0",
+        pollRate,
+        "bash -c 'pacman -Qu | wc -l'",
+    );
+
+    return (
+        <button class="big-button" onClicked={() => {
+            execAsync(`foot bash -c "sudo pacman -Syu && echo 'press ENTER to exit :]' && read"`)
+                .catch((err) => console.error(err));
+        }}>
+            <Gtk.EventControllerMotion />
+
+            <label label={updateablePackageCount.as(c => `\udb82\udcc7 ${c} pkgs`)} />
+        </button>
+    );
+}
+
+const WIDGETS: Record<string, (config: any) => GObject.Object> = Object.seal({
     network,
     bluetooth,
     powerprofile,
+    pacmanUpdateCount,
 });
 
 // #endregion
@@ -130,7 +186,7 @@ function batteryBottomBarWidget() {
                     class="subtitle"
                 />
             </box>
-            <label label={config.quickMenu.value.as(
+            <label class="accent static" label={config.quickMenu.value.as(
                 v => exec(`bash -c 'echo "${v.customTextFmt}"'`)
             )} />
         </box>
@@ -139,6 +195,7 @@ function batteryBottomBarWidget() {
 
 export default function quickMenu() {
     const { widgetSpacing } = config.spacing;
+    const widgetConfig = config.quickMenu.value().widgetConfig || {};
 
     const widgetsContainer = createComputed(() => {
         const filteredWidgets = config.quickMenu.value().widgets
@@ -156,7 +213,7 @@ export default function quickMenu() {
         const rowList = filteredWidgets
             .map(row => (
                 <box spacing={widgetSpacing} homogeneous>
-                    {...row.map(w => w())}
+                    {...row.map(w => w(widgetConfig[w.name]))}
                 </box>
             ));
 

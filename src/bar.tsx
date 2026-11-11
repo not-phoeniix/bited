@@ -78,8 +78,10 @@ export function statusIcons(props: WidgetProps) {
         ? Gtk.PositionType.BOTTOM
         : Gtk.PositionType.RIGHT;
 
+    const [parentClass, setParentClass] = createState("widget");
+
     return (
-        <menubutton class="widget">
+        <menubutton class={parentClass}>
             <box spacing={config.spacing.widgetSpacing} orientation={props.orientation}>
                 {networkIcon("bar-icon")}
                 {volumeIcon("bar-icon")}
@@ -88,6 +90,8 @@ export function statusIcons(props: WidgetProps) {
             </box>
             <popover
                 position={popoverPos}
+                onShow={() => setParentClass("widget accent-bg")}
+                onHide={() => setParentClass("widget")}
                 $={(self) => registerPanel("quick_menu", self)}
             >
                 {quickMenu()}
@@ -108,15 +112,25 @@ export function timeCal(props: WidgetProps) {
 
     const time = createTimePoll();
     const [calendarDate, setCalendarDate] = createState(GLib.DateTime.new_now_local());
+    const [parentClass, setParentClass] = createState("widget");
 
     return (
-        <menubutton class="widget">
-            <box spacing={config.spacing.labelSpacing} orientation={props.orientation}>
+        <menubutton class={parentClass}>
+            <box
+                spacing={config.spacing.labelSpacing}
+                orientation={props.orientation}
+            >
                 <label label={time.as(t => padNumberStr(widgetConfig.use24h ? t.hour : t.hour12))} />
                 <label label={time.as(t => padNumberStr(t.minute))} class="accent" />
             </box>
             <popover
-                onShow={() => setCalendarDate(GLib.DateTime.new_now_local())}
+                onShow={() => {
+                    setCalendarDate(GLib.DateTime.new_now_local());
+                    setParentClass("widget accent-bg");
+                }}
+                onHide={() => {
+                    setParentClass("widget");
+                }}
                 $={(self) => registerPanel("calendar", self)}
             >
                 <Gtk.Calendar class="widget" date={calendarDate} />

@@ -85,8 +85,8 @@ menubutton {
     &:hover {
         background-color: var(--color-bg-highlight);
 
-        & .critical,
-        & .accent {
+        & .critical:not(.static),
+        & .accent:not(.static) {
             color: var(--color-bg);
         }
     }
@@ -199,6 +199,14 @@ entry {
 
     .accent,
     .critical {
+        color: var(--color-bg);
+    }
+}
+
+.accent-bg {
+    background-color: var(--color-accent);
+
+    & .accent:not(.static) {
         color: var(--color-bg);
     }
 }
