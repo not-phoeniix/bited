@@ -36,11 +36,6 @@ printvars() {
 }
 
 send_pipe_cmd_raw() {
-    if ! pgrep bited >/dev/null 2>&1; then
-        echo "bited is not running, cannot send command!"
-        exit 1
-    fi
-
     if [ ! -p "$IN_PIPE_PATH" ]; then
         echo "ERR: input pipe at path '$IN_PIPE_PATH' missing!"
         exit 1
@@ -56,13 +51,22 @@ send_pipe_cmd_raw() {
         exit 1
     fi
 
-    # launch background cat to read response BEFORE sending cmd
-    (echo -e "$(cat $OUT_PIPE_PATH)") & 
-    pid=$!
+    TO=1s # <-- message timeout
+    pids=()
 
-    echo "$1" > $IN_PIPE_PATH
+    # launch background cat to listen for response BEFORE sending cmd
+    timeout -k $TO $TO cat $OUT_PIPE_PATH & 
+    pids+=($!)
 
-    wait $pid
+    # send cmd
+    timeout -k $TO $TO bash -c "echo '$1' > $IN_PIPE_PATH" &
+    pids+=($!)
+
+    wait "${pids[@]}"
+    if [[ "$?" != 0 ]]; then
+        echo "ERR: bited pipe timeout" 
+        exit 1
+    fi
 }
 
 send_pipe_cmd() {
@@ -85,11 +89,11 @@ while true; do
         '-h' | '--help') print_usage; exit 0 ;;
 
         # --- commands ---
-        'toggle') send_pipe_cmd_arg "toggle" $2; exit 0 ;;
-        'list') send_pipe_cmd "list"; exit 0 ;;
-        'theme') send_pipe_cmd_arg "theme" $2; exit 0 ;;
-        'notifs') send_pipe_cmd_arg "notifs" $2; exit 0 ;;
-        'ping') send_pipe_cmd "ping"; exit 0 ;;
+        'toggle') send_pipe_cmd_arg "toggle" $2 ; exit 0 ;;
+        'list') send_pipe_cmd "list" ; exit 0 ;;
+        'theme') send_pipe_cmd_arg "theme" $2 ; exit 0 ;;
+        'notifs') send_pipe_cmd_arg "notifs" $2 ; exit 0 ;;
+        'ping') echo "pinging bited..." ; send_pipe_cmd "ping" ; exit 0 ;;
         'getvars') printvars; exit 0 ;;
 
         # --- unrecognized ---
