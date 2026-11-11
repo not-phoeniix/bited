@@ -150,12 +150,15 @@ export default class Niri extends GObject.Object {
 
         if (event.WindowsChanged) {
             this.#windows = event.WindowsChanged.windows;
+            this.#focusedWindowId = this.#windows.find(w => w.is_focused)!.id;
             this.#updateWindowIdIdxMap();
             queueNotify("windows");
+            queueNotify("focused_window");
         }
 
         if (event.WorkspacesChanged) {
-            this.#workspaces = event.WorkspacesChanged.workspaces;
+            this.#workspaces = event.WorkspacesChanged.workspaces
+                .sort((a, b) => a.idx - b.idx);
             this.#focusedWorkspaceId = this.#workspaces.find(w => w.is_focused)!.id;
             this.#updateWorkspaceIdIdxMap();
             queueNotify("workspaces");
@@ -175,6 +178,7 @@ export default class Niri extends GObject.Object {
             // if window doesn't exist, add it
             if (!this.#windows.find(w => w.id === window.id)) {
                 this.#windows = [...this.#windows, window];
+                this.#updateWindowIdIdxMap();
                 queueNotify("windows");
             }
 
@@ -205,6 +209,7 @@ export default class Niri extends GObject.Object {
             const clonedWindows = this.#windows.slice();
             clonedWindows.filter(w => w.id !== event.WindowClosed!.id);
             this.#windows = clonedWindows;
+            this.#updateWindowIdIdxMap();
             queueNotify("windows");
         }
 
@@ -219,11 +224,6 @@ export default class Niri extends GObject.Object {
 
     constructor() {
         super();
-
-        this.#focusedWorkspaceId = (msg("workspaces") as NiriWorkspace[])
-            .filter(ws => ws.is_focused)[0].id;
-        this.#focusedWindowId = (msg("windows") as NiriWindow[])
-            .filter(w => w.is_focused)[0].id;
 
         subprocess(
             "niri msg -j event-stream",
