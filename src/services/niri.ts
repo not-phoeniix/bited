@@ -96,10 +96,14 @@ export default class Niri extends GObject.Object {
         return this.#instance;
     }
 
+    #tmpNotifyList = new Set<string>();
+
     #workspaces: NiriWorkspace[] = [];
+    #workspaceIdIdxMap: Record<number, number> = {};
     #windows: NiriWindow[] = [];
-    #activeWorkspace: NiriWorkspace;
-    #focusedWindow: NiriWindow | null;
+    #windowIdIdxMap: Record<number, number> = {};
+    #focusedWorkspaceId: number = -1;
+    #focusedWindowId: number = -1;
 
     @getter(Array<NiriWorkspace>)
     get workspaces() { return this.#workspaces; }
@@ -108,26 +112,61 @@ export default class Niri extends GObject.Object {
     get windows() { return this.#windows; }
 
     @getter(Object)
-    get activeWorkspace() { return this.#activeWorkspace; }
+    get focusedWorkspace() {
+        const i = this.#workspaceIdIdxMap[this.#focusedWorkspaceId];
+        return this.#workspaces[i];
+    }
 
     @getter<NiriWindow | null>(Object)
-    get focusedWindow() { return this.#focusedWindow; }
+    get focusedWindow() {
+        const i = this.#windowIdIdxMap[this.#focusedWindowId] ?? -1;
+        return this.#windows[i] ?? null;
+    }
+
+    #updateWindowIdIdxMap = () => {
+        this.#windowIdIdxMap = {};
+        for (let i = 0; i < this.#windows.length; i++) {
+            const win = this.#windows[i];
+            this.#windowIdIdxMap[win.id] = i;
+        }
+    };
+
+    #updateWorkspaceIdIdxMap = () => {
+        this.#workspaceIdIdxMap = {};
+        for (let i = 0; i < this.#workspaces.length; i++) {
+            const ws = this.#workspaces[i];
+            this.#workspaceIdIdxMap[ws.id] = i;
+        }
+    };
 
     #messageCallback = (value: string) => {
         if (!value) return;
 
         const event: NiriEvent = JSON.parse(value);
 
+        this.#tmpNotifyList.clear();
+        // function alias for better readability <3
+        const queueNotify = (p: string) => this.#tmpNotifyList.add(p);
+
         if (event.WindowsChanged) {
             this.#windows = event.WindowsChanged.windows;
-            this.notify("windows");
+            this.#updateWindowIdIdxMap();
+            queueNotify("windows");
         }
 
         if (event.WorkspacesChanged) {
             this.#workspaces = event.WorkspacesChanged.workspaces;
-            this.#activeWorkspace = this.#workspaces.find(w => w.is_active)!;
-            this.notify("workspaces");
-            this.notify("active_workspace");
+            this.#focusedWorkspaceId = this.#workspaces.find(w => w.is_focused)!.id;
+            this.#updateWorkspaceIdIdxMap();
+            queueNotify("workspaces");
+            queueNotify("focused_workspace");
+        }
+
+        if (event.WorkspaceActiveWindowChanged) {
+            const { workspace_id, active_window_id } = event.WorkspaceActiveWindowChanged;
+            const i = this.#workspaceIdIdxMap[workspace_id];
+            this.#workspaces[i].active_window_id = active_window_id;
+            queueNotify("workspaces");
         }
 
         if (event.WindowOpenedOrChanged) {
@@ -136,12 +175,12 @@ export default class Niri extends GObject.Object {
             // if window doesn't exist, add it
             if (!this.#windows.find(w => w.id === window.id)) {
                 this.#windows = [...this.#windows, window];
-                this.notify("windows");
+                queueNotify("windows");
             }
 
             if (window.is_focused) {
-                this.#focusedWindow = window;
-                this.notify("focused_window");
+                this.#focusedWindowId = window.id;
+                queueNotify("focused_window");
             }
         }
 
@@ -149,28 +188,28 @@ export default class Niri extends GObject.Object {
             const { id } = event.WindowFocusChanged;
             const win = this.#windows.find(w => w.id === id);
             if (win) {
-                this.#focusedWindow = win;
+                this.#focusedWindowId = win.id;
             } else {
-                this.#focusedWindow = null;
+                this.#focusedWindowId = -1;
             }
 
-            this.notify("focused_window");
+            queueNotify("focused_window");
         }
 
         if (event.WorkspaceActivated && event.WorkspaceActivated.focused) {
-            const ws = this.#workspaces.find(ws => ws.id === event.WorkspaceActivated!.id);
-            if (ws) {
-                this.#activeWorkspace = ws;
-            }
-
-            this.notify("active_workspace");
+            this.#focusedWorkspaceId = event.WorkspaceActivated!.id;
+            queueNotify("focused_workspace");
         }
 
         if (event.WindowClosed) {
             const clonedWindows = this.#windows.slice();
             clonedWindows.filter(w => w.id !== event.WindowClosed!.id);
             this.#windows = clonedWindows;
-            this.notify("windows");
+            queueNotify("windows");
+        }
+
+        for (const prop of this.#tmpNotifyList.values()) {
+            this.notify(prop);
         }
     };
 
@@ -181,10 +220,10 @@ export default class Niri extends GObject.Object {
     constructor() {
         super();
 
-        this.#activeWorkspace = (msg("workspaces") as NiriWorkspace[])
-            .filter(w => w.is_active)[0];
-        this.#focusedWindow = (msg("windows") as NiriWindow[])
-            .filter(w => w.is_focused)[0];
+        this.#focusedWorkspaceId = (msg("workspaces") as NiriWorkspace[])
+            .filter(ws => ws.is_focused)[0].id;
+        this.#focusedWindowId = (msg("windows") as NiriWindow[])
+            .filter(w => w.is_focused)[0].id;
 
         subprocess(
             "niri msg -j event-stream",

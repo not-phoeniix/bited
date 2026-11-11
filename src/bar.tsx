@@ -284,7 +284,7 @@ export function workspacesNiri(props: WidgetProps) {
 
     const workspaces = createBinding(niri, "workspaces")
         .as(workspaces => workspaces.sort((a, b) => a.idx - b.idx));
-    const activeWorkspace = createBinding(niri, "activeWorkspace");
+    const focusedWorkspace = createBinding(niri, "focusedWorkspace");
 
     function workspaceIcon(ws: NiriWorkspace) {
         let icon = (widgetConfig as WorkspacesNiriConfig).namedWorkspaces
@@ -300,11 +300,11 @@ export function workspacesNiri(props: WidgetProps) {
             }
         }
 
-        const isActive = activeWorkspace.as(active => active.id === ws.id);
+        const isFocused = focusedWorkspace.as(focused => focused.id === ws.id);
         return (
             <button
                 label={icon}
-                class={isActive.as(a => `workspace ${a ? "focused" : ""}`)}
+                class={isFocused.as(f => `workspace ${f ? "focused" : ""}`)}
                 onClicked={() => niri!.action(`focus-workspace ${ws.idx}`)}
             />
         );
