@@ -6,7 +6,14 @@ import { Astal } from "ags/gtk4";
 import Gio from "gi://Gio";
 import { readFile } from "ags/file";
 
-export const getEnv = (env: string) => exec(`bash -c 'echo $${env}'`);
+export const escape = (str: string) => str
+    .replaceAll(/\\/g, '\\\\')
+    .replaceAll(/\'/g, '\\\'')
+    .replaceAll(/\"/g, '\\\"')
+    .replaceAll(/\`/g, '\\\`');
+export const execBash = (...cmd: string[]) => exec(`bash -c '${cmd.join(' ')}'`);
+export const execAsyncBash = (...cmd: string[]) => execAsync(`bash -c '${cmd.join(' ')}'`);
+export const getEnv = (env: string) => execBash(`echo $${env}`);
 export const makePath = (...paths: string[]) => paths.join("/").replaceAll(/\/+/g, "/");
 
 const DEFAULT_TIME: Time = Object.seal({
@@ -156,7 +163,7 @@ export function processScss(
 }
 
 export function fileExists(path: string) {
-    return exec(`bash -c "[ -e '${path}' ] && echo 'true' || echo 'baha noooo baha nnnooooo'"`) === "true";
+    return execBash(`[ -e '${path}' ] && echo 'true' || echo 'baha noooo baha nnnooooo'`) === "true";
 }
 
 export function filterStringRecord(arg: object): Record<string, string> {

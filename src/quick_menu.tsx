@@ -2,13 +2,12 @@ import { Gtk } from "ags/gtk4";
 import AstalBattery from "gi://AstalBattery";
 import { batteryIcon, networkIcon } from "./icons";
 import config from "./config";
-import { createBinding, createComputed } from "gnim";
+import { createBinding, createComputed, createState } from "gnim";
 import GObject from "gnim/gobject";
-import { exec, execAsync } from "ags/process";
+import { execAsync } from "ags/process";
 import AstalNetwork from "gi://AstalNetwork";
 import AstalPowerProfiles from "gi://AstalPowerProfiles";
-import { createPoll } from "ags/time";
-import { getEnv } from "./utils";
+import { execAsyncBash, execBash, getEnv } from "./utils";
 
 // #region widgets
 
@@ -112,16 +111,26 @@ function pacmanUpdateCount(config: any) {
     if (cfg.pollRateMinutes) pollRate += cfg.pollRateMinutes * 1000 * 60;
     if (cfg.pollRateHours) pollRate += cfg.pollRateHours * 1000 * 60 * 60;
 
-    const updateablePackageCount = createPoll(
-        "0",
-        pollRate,
-        "bash -c 'pacman -Qu | wc -l'",
-    );
+
+    const [updateablePackageCount, setUpdateablePackageCount] = createState("0");
+    const pollUpdatablePackageCount = () =>
+        execAsyncBash("pacman -Qu | wc -l")
+            .then(setUpdateablePackageCount)
+            .then(() => console.log("baha we polled <3"))
+            .catch(console.error);
+
+    pollUpdatablePackageCount();
+    setInterval(pollUpdatablePackageCount, pollRate);
 
     return (
         <button class="big-button" onClicked={() => {
-            execAsync(`foot bash -c "sudo pacman -Syu && echo 'press ENTER to exit :]' && read"`)
-                .catch((err) => console.error(err));
+            pollUpdatablePackageCount();
+
+            execAsync(`${cfg.terminalCmd} bash -c "
+                sudo pacman -Syu && 
+                echo 'press ENTER to exit :]' && 
+                read
+            "`).catch(console.error);
         }}>
             <Gtk.EventControllerMotion />
 
@@ -187,7 +196,7 @@ function batteryBottomBarWidget() {
                 />
             </box>
             <label class="accent static" label={config.quickMenu.value.as(
-                v => exec(`bash -c 'echo "${v.customTextFmt}"'`)
+                v => execBash(`echo "${v.customTextFmt}"`)
             )} />
         </box>
     );

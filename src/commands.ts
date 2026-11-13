@@ -1,5 +1,5 @@
-import { exec, subprocess } from "ags/process";
-import { fileExists, filterStringRecord, makePath, processScss } from "./utils";
+import { subprocess } from "ags/process";
+import { execBash, fileExists, filterStringRecord, makePath, processScss } from "./utils";
 import { Gtk } from "ags/gtk4";
 import paths from "./paths";
 import { isCommandDesc } from "./types";
@@ -132,7 +132,7 @@ export function deregisterAllPanels() {
 }
 
 function respond(msg: string) {
-    exec(`bash -c "echo '${msg}' > ${paths.APP_RUNTIME_OUT_PIPE_FILE}"`);
+    execBash(`echo '${msg}' > ${paths.APP_RUNTIME_OUT_PIPE_FILE}`);
 }
 
 function handlePipe(stdout: string) {

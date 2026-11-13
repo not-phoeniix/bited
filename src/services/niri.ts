@@ -1,6 +1,6 @@
 import GObject, { register, getter } from "ags/gobject";
 import { exec, subprocess } from "ags/process";
-import { getEnv } from "../utils";
+import { execBash, getEnv } from "../utils";
 
 type NiriPos = [number, number];
 
@@ -88,7 +88,7 @@ const msg = (cmd: string) => JSON.parse(exec(`niri msg -j ${cmd}`));
 export default class Niri extends GObject.Object {
     static #instance: Niri;
     static get_default() {
-        if (!exec(`bash -c "command -v niri"`) || !getEnv("NIRI_SOCKET")) {
+        if (!execBash("command -v niri") || !getEnv("NIRI_SOCKET")) {
             return null;
         }
 
